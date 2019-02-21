@@ -28,4 +28,3 @@ link_directories(${STATIC_LIBRARY_PATH})
 
 add_executable(rle_test ${PROJECT_SOURCES})
 target_link_libraries(rle_test rle)
-  
