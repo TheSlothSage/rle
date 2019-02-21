@@ -1,0 +1,5 @@
+components = _G["components"]
+
+components.helloworld = {}
+components.helloworld.systems = {"systems/helloworld"}	
+

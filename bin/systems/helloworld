@@ -1,0 +1,5 @@
+systems.helloworld = {}
+systems.helloworld.functions = {"Init", 1} 
+systems.helloworld.Init = function()
+	printmessage("world hello")
+	end
