@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/rle_test.dir/src/main.cpp.o  -o ../bin/rle_test  -L/home/projects/rle++/libs -Wl,-rpath,/home/projects/rle++/libs ../bin/librle.a -llua -lm -lstdc++ -ldl 

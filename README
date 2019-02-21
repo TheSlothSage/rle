@@ -1,0 +1,5 @@
+~ BUILD INSTRUCTIONS
+Add the latest version of liblua to the libs directory 
+Add a soft link in ext to a directory with lua headers
+Add a soft link to a directory with LuaBridge headers
+Add a soft link to the the LuaBridge directory and call it 'LuaBridge' (This resolves naming issues in headers) 
