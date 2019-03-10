@@ -7,34 +7,38 @@ rle::component::Component::Component(std::string _name, lua_State* L) : name(_na
 	if (luaL_loadfile(L, pathname.c_str()) ||
 	    lua_pcall(L, 0, 0, 0)) {
 		//there are many other ways this can fail btw
-		throw std::runtime_error("rle::component::Component() : components/" + name + " either does not exist or has been moved"); 
+		throw std::runtime_error("rle::component::Component() : " + pathname + "either does not exist or has been moved"); 
 	}
 	luabridge::LuaRef component_table = luabridge::LuaRef::getGlobal(L, "components");
 	luabridge::LuaRef component = component_table[name];
 	if(component.isNil()){
-		throw std::runtime_error("rle::component::Component() : " + fullname + "; no component with name");
+		throw std::runtime_error("rle::component::Component() : " + fullname + "; no component components table with name");
 	}
 	luabridge::LuaRef systems = component["systems"];
 	if(systems.isNil()){		
 		throw std::runtime_error("rle::component::Component() : " + fullname + ".systems does not exist");
 	}
-	systems.push();
+
+	std::cout << "\t\t\tLoading System Dependencies..." << std::endl;
+	
 	std::string system_name;
+	systems.push();	
 	lua_pushnil(L);
 	while(lua_next(L, -2)){
 		if(lua_isstring(L, -1)){
 			system_name = luabridge::LuaRef::fromStack(L, -1).cast<std::string>(); 
+			std::cout << "\t\t\t\t-Loading " << system_name << std::endl;
 		}
 		else{			
 			throw std::runtime_error("rle::component::Component() : non string in system table");
 		}
+		
 		system_table.push_back((system::System*)(new system::LuaSystem(L,  system_name)));
 		lua_pop(L,1);
 	}
 	//pop the key
 	lua_pop(L,1);
-	//pop system table
-	lua_pop(L, 1);
+	
 }
 
 rle::component::Component::~Component(){

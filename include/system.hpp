@@ -1,9 +1,9 @@
 #pragma once
 extern "C" {
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
-}
+# include "lua.h"
+# include "lauxlib.h"
+# include "lualib.h"
+ }
 #include "LuaBridge.h"
 #include <vector>
 #include <string>
@@ -15,6 +15,7 @@ namespace rle {
 	namespace system{
 
 		class Call{
+		protected:
 			std::string name;
 		public:
 			Call(std::string _name);
@@ -25,20 +26,19 @@ namespace rle {
 		};
 		class LuaCall : Call{
 			std::string system_name;
-			std::string name;
+			lua_State* L;
 		public:
-			LuaCall(lua_State* L, std::string _system_name, std::string _name); 		       
+			LuaCall(lua_State* L, std::string _system_name, std::string _name);	
 			void Exec(); 
 		};
 		
 		class System{
 		protected:
 			std::string name;
-			lua_State* L;
 			unsigned int max_priority = 0;
 			std::map<std::string, Call*> call_objs;
 		public:
-			System(lua_State* _L, std::string _name);
+			System(std::string _name);
 			virtual ~System() = 0;
 			std::string Name(){
 				return name;
@@ -56,6 +56,8 @@ namespace rle {
 		};
 
 		class LuaSystem :  System{
+		protected:
+			lua_State* L;
 		public:	
 			LuaSystem(lua_State* _L, std::string _name);
 			~LuaSystem();

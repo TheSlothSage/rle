@@ -25,6 +25,7 @@ namespace rle{
 			Component(std::string _name, lua_State* _L);
 			~Component();
 			std::string Name(){ return name; }			
+
 			Component& Get(std::string data);
 
 			template<typename T>
