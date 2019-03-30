@@ -22,7 +22,17 @@ namespace rle{
 			~Entity();
 			
 			std::string Name() { return name; }
+			tile::Tile& Tile() { return tile; }
+
+			component::Component& GetComponent(std::string name);
+			tile::TileMap& GetTileMap(std::string name);		       
+
+			unsigned int X() { return x; }
+			unsigned int Y() { return y; }
+			unsigned int Z() { return z; }
+			
 			void UpdateTilePtr();
+			void MoveTileMap(std::string name, unsigned int x, unsigned int y, unsigned int z); 
 			
 		};
 	}

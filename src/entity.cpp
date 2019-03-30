@@ -15,6 +15,19 @@ rle::entity::Entity::Entity(lua_State* _L, tile::TileMap& _tilemap, std::vector<
 				}
 }
 
+rle::component::Component& rle::entity::Entity::GetComponent(std::string name){
+	for(component::Component*& com : component_table){
+		if(com->Name() == name){
+			return *com;
+		}
+	}
+	throw std::runtime_error("Entity::GetComponent : No component with name : " + name); 
+}
+
+rle::tile::TileMap& rle::entity::Entity::GetTileMap(std::string name){
+	return tilemap;
+}
+
 void rle::entity::Entity::UpdateTilePtr(){
 	for(std::vector<rle::entity::Entity*>::iterator iter = tile.entities.begin(); iter != tile.entities.end(); ++iter){
 		if((*iter)->Name() == name){

@@ -4,33 +4,39 @@
 rle::RLE::RLE(){
 	//init test tilemap, this should be deleted and should use the initstate script
 	tile_map_table.push_back(new tile::TileMap("test", 100, 100, 100));
+	InitLua();	
+}
 
+void rle::RLE::InitLua(){
+	//create lua state and open all the libraries
 	L = luaL_newstate();
-
+	luaL_openlibs(L);
 	// create the component and system tables
 	luaL_dostring(L, "components = {}");
 	luaL_dostring(L, "systems = {}");
+}
 
-	luaL_openlibs(L);
-	if (luaL_loadfile(L, "rle.initstate.lua") ||
-	    lua_pcall(L, 0, 1, 0)) {
-		std::cout << "rle::RLE::RLE() : rle.initsate.lua either does not exist or has been moved" << std::endl;
-		exit;
-	}	
-	luabridge::LuaRef init_entity_table = luabridge::LuaRef::fromStack(L, -1);
-	if(init_entity_table.isNil()){
-		std::cout << "rle::RLE::RLE() : entities table does not exist in rle.initstate.lua" << std::endl;
-		exit;
-	}
-	// Actually get all the components and stuff
-	//Push all this stuff out of the for loop
-	
+void rle::RLE::InitEntities(){
 	std::vector<std::string> components;
 	std::string name;
 	unsigned int x;
 	unsigned int y;
 	unsigned int z;
 
+	if (luaL_loadfile(L, "rle.initstate.lua") ||
+	    lua_pcall(L, 0, 1, 0)) {
+		std::cout << "rle::RLE::RLE() : rle.initsate.lua either does not exist or has been moved" << std::endl;
+		exit;
+	}
+	
+	luabridge::LuaRef init_entity_table = luabridge::LuaRef::fromStack(L, -1);
+
+	if(init_entity_table.isNil()){
+		std::cout << "rle::RLE::RLE() : entities table does not exist in rle.initstate.lua" << std::endl;
+		exit;
+	}
+
+	
 	std::cout << "Initializing Init Entities..." << std::endl;
 	
 	for(int i = 1; i <= lua_rawlen(L, -1); ++i){
@@ -73,7 +79,18 @@ rle::RLE::RLE(){
 		lua_pop(L, 1); 
 	}
 	// pop entities from rle.initstate
-	lua_pop(L,1);
+	lua_pop(L,1);	
+}
+
+void rle::RLE::Start(){
+	// Init Tile Maps 
+	InitEntities();
+	running = true;
+	// Begin Game Loop
+}
+
+bool rle::RLE::State(){
+	return running; 
 }
 
 void rle::RLE::NewEntity(entity::Entity& entity){
@@ -160,4 +177,13 @@ rle::entity::Entity& rle::RLE::GetEntity(std::string entity){
 		}
 	}
 	throw std::runtime_error("rle::RLE::GetEntity : No such name " + entity); 
+}
+
+rle::tile::TileMap& rle::RLE::GetTileMap(std::string tilemap){
+	for(tile::TileMap*& til : tile_map_table){
+		if(til->Name() == tilemap){
+			return *til;
+		}
+	}
+	throw std::runtime_error("rle::RLE::GetTileMap : No such name " + tilemap);
 }
