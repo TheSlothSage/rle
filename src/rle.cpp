@@ -55,11 +55,12 @@ void rle::RLE::InitEntities(){
 		if(component_table.isNil()){
 			throw "RLE::Component::Component() : Entity does not have asociated component table"; 
 		}
-		component_table.push();				
+			
 		std::cout << "\t-Entity: " << name << std::endl;
 		std::cout << "\t\t-At(" << x << "," << y << "," << z << ")" << std::endl;
 		std::cout << "\t\t-Components" << std::endl;	       
 
+		component_table.push();	
 		lua_pushnil(L); 
 		while(lua_next(L, -2)){
 			if(lua_isstring(L, -1)){
@@ -75,11 +76,29 @@ void rle::RLE::InitEntities(){
 			// pop value
 			lua_pop(L, 1); 
 		}
-		// pop key
-		lua_pop(L, 1); 
+		// clear stack
+		lua_settop(L,0);
 	}
-	// pop entities from rle.initstate
-	lua_pop(L,1);	
+
+	// Now loop through everything and populate all the global tables
+
+	std::cout << "Loading Initialized Entities Into Tables..." << std::endl;
+	
+	for(entity::Entity*& ent : global_entity_table){
+		std::vector<component::Component*>& components = ent->Components();
+		for(component::Component*& com : components){
+			if(!CheckComponent(com->Name())){
+				global_component_table.push_back(com->Name());
+			}
+			std::vector<system::System*>& systems = com->Systems();
+			for(system::System*& sys : systems){
+				if(!CheckSystem(sys->Name())){
+					global_system_table.push_back(sys); 
+				}
+			}			
+		}
+	}
+	std::cout << "Initialization of RLE state complete!" << std::endl;
 }
 
 void rle::RLE::Start(){
@@ -186,4 +205,49 @@ rle::tile::TileMap& rle::RLE::GetTileMap(std::string tilemap){
 		}
 	}
 	throw std::runtime_error("rle::RLE::GetTileMap : No such name " + tilemap);
+}
+
+bool rle::RLE::CheckComponent(std::string name){
+	for(std::string& str : global_component_table){
+		if(name == str){
+			return true;
+		}
+	}
+	return false;
+}
+
+bool rle::RLE::CheckSystem(std::string name){
+	for(rle::system::System*& sys : global_system_table){
+		if(sys->Name() == name){
+			return true;
+		}
+	}
+	return false;
+}
+
+bool rle::RLE::CheckEntity(std::string name){
+	for(rle::entity::Entity*& ent : global_entity_table){
+		if(ent->Name() == name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// Define this here: component populate function to use forward declaration of class RLE
+
+void rle::component::Component::PopulateIntoRLEComponentTable(rle::RLE& rle){
+	if(rle.CheckComponent(name)) { return; }
+	else{
+		rle.AddComponent(name); 
+	}
+}
+
+// Define this here: system populate function to use forward declaration of class RLE
+
+void rle::system::System::PopulateIntoRLESystemTable(rle::RLE& rle){
+	if(rle.CheckSystem(name)) { return; }
+	else{
+		rle.AddSystem(this);
+	}
 }

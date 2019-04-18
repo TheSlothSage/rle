@@ -23,6 +23,7 @@ namespace rle{
 			
 			std::string Name() { return name; }
 			tile::Tile& Tile() { return tile; }
+			std::vector<component::Component*>& Components() { return component_table; }
 
 			component::Component& GetComponent(std::string name);
 			tile::TileMap& GetTileMap(std::string name);		       
@@ -30,10 +31,10 @@ namespace rle{
 			unsigned int X() { return x; }
 			unsigned int Y() { return y; }
 			unsigned int Z() { return z; }
+
+			tile::TileMap& TileMap() { return tilemap; } // interface level must deal with this because passing rle to everything is dumb and it's not how i set up all the code unfortunately 
 			
-			void UpdateTilePtr();
-			void MoveTileMap(std::string name, unsigned int x, unsigned int y, unsigned int z); 
-			
+			void UpdateTilePtr();			
 		};
 	}
 }

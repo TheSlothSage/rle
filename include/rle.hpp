@@ -24,9 +24,9 @@ namespace rle{
 	class RLE{	
 		lua_State* L;
 		std::vector<std::string> global_component_table; // keeps list of components loaded into main state
-		std::vector<system::System*> global_system_table;
-		std::vector<entity::Entity*> global_entity_table;
-		std::vector<tile::TileMap*> tile_map_table;
+		std::vector<system::System*> global_system_table; // stores pointers to all systems with their calls which have already been loaded into the lua state
+		std::vector<entity::Entity*> global_entity_table; // keeps a list of all entities
+		std::vector<tile::TileMap*> tile_map_table; // keeps a list of all tilemaps
 
 		bool running = false;
 	public:
@@ -52,6 +52,7 @@ namespace rle{
 		bool CheckSystem(std::string system);
 		bool CheckComponent(std::string component);
 		bool CheckEntity(std::string entity);
+		bool CheckTileMap(std::string tilemap); 
 		
 		system::System& GetSystem(std::string system);
 		entity::Entity& GetEntity(std::string entity);

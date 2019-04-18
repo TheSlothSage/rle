@@ -21,81 +21,71 @@ namespace rle{
 			T_Implementor<T>& Do() { return impl; }
 		};
 
-		template<class T>
+		template<class T> 
+		class Specialized_Implementor;
+		
+		template<class T, template<class> class Ret_Implementor>
 		class Default_Implementor{
 		protected:
-			std::experimental::any rbuf;
 			T& obj;
 		public:
 			Default_Implementor() : obj(*(new T())) {}
 			Default_Implementor(T& _obj) : obj(_obj) {}
 			template<class getType>
-			Default_Implementor<getType> Get(std::string name) {
-				throw std::runtime_error("Implementor::Get : No such table with member type given with args std::string name");
+			Ret_Implementor<getType> Get(std::string name) {
+				throw std::runtime_error("Implementor::Get() : No such table with member type given with args std::string name");
 			}
 			template<class getType>
-			Default_Implementor<getType> Get(){
-				throw std::runtime_error("Implementor::Get : No such table with member type given with no args");	
+			Ret_Implementor<getType> Get(){
+				throw std::runtime_error("Implementor::Get() : No such table with member type given with no args");	
 			}
 			template<class strType = std::string>
-			Default_Implementor<strType> Name() {
-				throw std::runtime_error("Implementor::Name : Object with this interface does not have Name() defined for it"); 
+			Ret_Implementor<strType> Name() {
+				throw std::runtime_error("Implementor::Name() : Object with this interface does not have Name() defined for it"); 
 			}
+
+			template<typename setType>
+			Ret_Implementor<T> Set(std::string name, setType& rval) {
+				throw std::runtime_error("Implementor::Set() : Object with this interface does not have Set() defined for it"); 				
+			};
 			
 			T& GiveInstance() { return obj; }
-			std::experimental::any& GiveBuf() { return rbuf; }
+		};
+		
+		template<class T>
+		class Specialized_Implementor : public Default_Implementor<T, Specialized_Implementor>{
+		public:
+			Specialized_Implementor() : Default_Implementor<T, Specialized_Implementor>() {}
+			Specialized_Implementor(T& _obj) : Default_Implementor<T, Specialized_Implementor>(_obj) {} 
 		};
 
-		template<typename T>
-		using basic_Interface = Interface<T, Default_Implementor>;
-		using basic_irle = Interface<rle::RLE, Default_Implementor>;
-
-		//Define Name() for everything that needs it
-		// macros would be nice here i guess
-		template<> template<>
-		Default_Implementor<std::string>
-		Default_Implementor<entity::Entity>::Name<std::string>(){
-			return Interface<std::string,Default_Implementor>(*(new std::string(obj.Name()))).Do();				
-		}
-
-		template<> template<>
-		Default_Implementor<std::string>
-		Default_Implementor<component::Component>::Name<std::string>(){
-			return Interface<std::string,Default_Implementor>(*(new std::string(obj.Name()))).Do();
-		}
-
-		template<> template<>
-		Default_Implementor<std::string>
-		Default_Implementor<tile::TileMap>::Name<std::string>(){
-			return Interface<std::string,Default_Implementor>(*(new std::string(obj.Name()))).Do();
-		}
-				
-		// Define for Default_Implementor<RLE>
-		template<> template<> 
-		Default_Implementor<rle::entity::Entity>
-		Default_Implementor<rle::RLE>::Get<entity::Entity>(std::string name){
-			return Interface<entity::Entity, Default_Implementor>(obj.GetEntity(name)).Do();
-		}
-
+		// Specialization for tile::Layer
 		
-		template<> template<>
-		Default_Implementor<rle::system::System>
-		Default_Implementor<rle::RLE>::Get<system::System>(std::string name){
-			return Interface<system::System, Default_Implementor>(obj.GetSystem(name)).Do();
-		}
-		
-		template<> template<>
-		Default_Implementor<rle::tile::TileMap>
-		Default_Implementor<rle::RLE>::Get<tile::TileMap>(std::string name){
-			return Interface<tile::TileMap, Default_Implementor>(obj.GetTileMap(name)).Do();
-		}		
+		template<>
+		class Specialized_Implementor<tile::Layer> : public Default_Implementor<tile::Layer, Specialized_Implementor>{
+		private:
+			template<typename T>
+			tile::Derived_Layer<T>& DownCastToDerived(){
+				tile::Derived_Layer<T>* dl = dynamic_cast<tile::Derived_Layer<T>*>(this);
+				if(dl){
+					return *this;
+				}
+				throw std::runtime_error("Implementor for tile::Layer : A dynamic cast failed from Layer -> Derived_Layer (Is the template argument the correct type for the layer?"); 
+			}
+		public:
+			Specialized_Implementor<tile::Layer>(tile::Layer& _obj) : Default_Implementor<tile::Layer, Specialized_Implementor>(_obj) {}
+			template<typename T>
+			Specialized_Implementor<T> Data(unsigned int){
+				 
+			}
+			template<typename T>
+			Specialized_Implementor<T> Data(unsigned int x, unsigned int y, unsigned int z){
+				 
+			}
+		};
 
-		// define Default_Implementor<Entity> 
-		
-		template<> template<>
-		Default_Implementor<rle::component::Component>
-		Default_Implementor<entity::Entity>::Get<component::Component>(std::string name){
-			return Interface<component::Component, Default_Implementor>(obj.GetComponent(name)).Do();
-		}
+		template<class T>
+		using basic_interface = Interface<T, Specialized_Implementor>;
+		using basic_irle = Interface<RLE, Specialized_Implementor>;						
 	}
 }

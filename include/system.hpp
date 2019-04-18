@@ -12,6 +12,7 @@ extern "C" {
 #include <map>
 #include <sstream>
 namespace rle {
+	class RLE;
 	namespace system{
 
 		class Call{
@@ -45,7 +46,7 @@ namespace rle {
 			}
 			void C_Name(char** _name){
 				*_name = new char[name.length()+1];
-				std::strcpy(*_name, name.c_str());
+				std::strcpy(*_name, name.c_str()); 
 			}
 			
 			virtual void NewCall(std::string key_str, unsigned int priority) = 0;
@@ -53,6 +54,7 @@ namespace rle {
 			virtual void DelCall(std::string key_str) = 0; 
 			virtual void ExecAll() = 0;
 			virtual void ExecFunc(std::string key_str) = 0;
+			void PopulateIntoRLESystemTable(rle::RLE& rle); // in rle.cpp
 		};
 
 		class LuaSystem :  System{
@@ -60,7 +62,7 @@ namespace rle {
 			lua_State* L;
 		public:	
 			LuaSystem(lua_State* _L, std::string _name);
-			~LuaSystem();
+			~LuaSystem();  
 			void NewCall(std::string str, unsigned int priority);
 			void DelCall(unsigned int index);
 			void DelCall(std::string key_str); 

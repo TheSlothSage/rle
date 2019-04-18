@@ -2,12 +2,12 @@
 #include <stdexcept>
 rle::component::Component::Component(std::string _name, lua_State* L) : name(_name){
 	// only for linux :(
-	std::string fullname = std::string("components."+_name);
-	std::string pathname = std::string("components/"+_name);
+	std::string fullname = std::string("components."+name);
+	std::string pathname = std::string("components/"+name);
 	if (luaL_loadfile(L, pathname.c_str()) ||
 	    lua_pcall(L, 0, 0, 0)) {
 		//there are many other ways this can fail btw
-		throw std::runtime_error("rle::component::Component() : " + pathname + "either does not exist or has been moved"); 
+		throw std::runtime_error("rle::component::Component() : " + pathname + " either does not exist, has been moved, or script has invalid syntax. Returned with error:\n" + std::string(lua_tostring(L, -1))); 
 	}
 	luabridge::LuaRef component_table = luabridge::LuaRef::getGlobal(L, "components");
 	luabridge::LuaRef component = component_table[name];
@@ -34,47 +34,47 @@ rle::component::Component::Component(std::string _name, lua_State* L) : name(_na
 		}
 		
 		system_table.push_back((system::System*)(new system::LuaSystem(L,  system_name)));
+		// pop value
 		lua_pop(L,1);
 	}
-	//pop the key
-	lua_pop(L,1);
 	
-}
+	//pop key
+	lua_pop(L, 1);
 
-rle::component::Component::~Component(){
-	for(system::System*& s : system_table){
-		delete s;
+	// now load all of the data
+
+	luabridge::LuaRef datatable = component["data"];
+	if(datatable.isNil()){
+		throw std::runtime_error("rle::component::Component() : " + fullname + ".data does not exist");
 	}
+
+	std::cout << "\t\t\t Loading Component Data..." << std::endl;
+	
+	std::string data_name;
+	datatable.push();
+	lua_pushnil(L);
+	while(lua_next(L, -2)){
+		 data_name = luabridge::LuaRef::fromStack(L, -2).cast<std::string>();
+		 data.insert(std::pair<std::string, luabridge::LuaRef>(data_name, luabridge::LuaRef::fromStack(L,-1)));
+		 std::cout << "\t\t\t\t-" << data_name << std::endl;
+
+		 // pop value
+		 lua_pop(L, 1);
+	}
+	// pop key
+	lua_pop(L, 1);
+		
 }
 
-rle::component::Component& rle::component::Component::Get(std::string _data){	
+luabridge::LuaRef& rle::component::Component::Get (std::string _data){	
 	try{
-		ret_data = &(data.at(_data));
+		return (data.at(_data));
 	}
 	catch(const std::out_of_range& e){
-		const char * c_data = _data.c_str();
-		luabridge::LuaRef ref(L, c_data);
-		data.insert(std::pair<std::string, luabridge::LuaRef>(_data, ref));
-		ret_data = &(data.at(_data));
-	}
-	return *this;
+		throw  std::runtime_error("rle::component::Component::Get : Data member " + _data + " does not exist in component");
+	}	
 }
 
-template<typename T>
-void rle::component::Component::Put(T& lval){
-	lval = ret_data->cast<T>();
-}
-
-void rle::component::Component::Put(luabridge::LuaRef& llua_ref){
-	llua_ref = *ret_data;
-}
-
-template<typename T>
-void rle::component::Component::Set(T& rval){
-	*ret_data(L, rval);
-}
-
-template<typename T>
-void rle::component::Component::Set(luabridge::LuaRef& rlua_ref){
-	ret_data(L, rlua_ref.cast<T>());
+std::vector<rle::system::System*>& rle::component::Component::Systems(){
+	return system_table;
 }

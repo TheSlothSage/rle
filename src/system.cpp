@@ -6,8 +6,11 @@ rle::system::System::System(std::string _name){
 	name = _name;
 }
 
-rle::system::System::~System(){
-	// pure virtual destructor requires definition 
+rle::system::System::~System(){ 	
+	for(std::map<std::string, rle::system::Call*>::iterator i = call_objs.begin();
+	    i != call_objs.end(); ++i){
+		delete i->second;
+	}
 }
 
 rle::system::Call::Call(std::string _name) : name(_name) {}
@@ -69,7 +72,7 @@ rle::system::LuaSystem::LuaSystem(lua_State* _L, std::string _name) : L(_L), sys
 		lua_pop(L,1);
 	}	  
 	// pop functions table
-	lua_pop(L, 1);
+	lua_pop(L, 1);	
 }
 
 rle::system::LuaSystem::~LuaSystem(){
