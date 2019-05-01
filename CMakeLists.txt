@@ -23,7 +23,7 @@ foreach(header ${HEADERS})
 endforeach()
 list(REMOVE_DUPLICATES HEADER_DIRS)
 include_directories(${HEADER_DIRS})
-include_directories(/home/projects/LuaBridge/Source/LuaBridge) 
+include_directories(/home/projects/LuaBridge/Souce/LuaBridge) 
 link_directories(${STATIC_LIBRARY_PATH}) 
 link_directories(/usr/lib)
 

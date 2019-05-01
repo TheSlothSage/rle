@@ -3,70 +3,64 @@
 #include <string>
 #include <variant>
 #include <memory>
-#include <experimental/any> 
 
 namespace rle{
 
 	namespace entity { class Entity; } 
 	
 	namespace tile{		
+
+		// Leave it at the interface level to downcast
+	      
 		
-		class LayerIface{
+		class Layer {
+		protected:
 			std::string name;
-		private:
-			virtual void a_Put(std::experimental::any _rval) = 0;
-			virtual void a_Set(std::experimental::any _lval) = 0;			
+			unsigned int max_x;
+			unsigned int max_y;
+			unsigned int max_z;
 		public:
-			LayerIface(std::string _name) : name(_name) {}		
-			std::string Name(){
-				return name;
-			}		       			
-			virtual LayerIface& Get(unsigned int index) = 0;
-			
-			template<typename T>
-			void Put(T rval);
-			template<typename T>
-			void Set(T rval); 
+			Layer(std::string _name, unsigned int _max_x, unsigned int _max_y, unsigned int _max_z) : name(_name), max_x(_max_x), max_y(_max_y), max_z(_max_z) {}
+			std::string Name() { return name; }
 		};
-		
-		template<typename T> class Layer : LayerIface{
-		private:
-			unsigned int size;
+
+		template<typename T>
+		class Derived_Layer : protected Layer{
+		protected:
 			std::vector<T> data;
 			T init_val;
-			T& get_ret;
-		       
-			void a_Put(std::experimental::any _rval);
-			void a_Set(std::experimental::any _lval);
-
 		public:
-			Layer(std::string _name, T _init_val, unsigned int _size) : LayerIface(_name),
-										    init_val(_init_val), size(_size) {
-				data.reserve(size); 
+			Derived_Layer(std::string _name, T _init_val, unsigned int _max_x, unsigned int _max_y, unsigned int _max_z) : Layer(_name, _max_x, _max_y, _max_z), init_val(_init_val) {
+				data.reserve(max_x*max_y*max_z); 
 				for(typename std::vector<T>::iterator i = data.begin(); i != data.end(); ++i){
 					*i = init_val; 
 				}
-			}					       
-			LayerIface& Get(unsigned int index);			
+			}
+			std::string Name() { return name; }
+			T& GetData(unsigned int index){
+				return *(data.at(index));
+			}
+			T& GetData(unsigned int x, unsigned int y, unsigned int z){
+				return *(data.at(x + y*max_x + z*max_x*max_y));
+			}
 		};
-		
 		struct Tile{
 			Tile(unsigned int _x, unsigned int _y, unsigned int _z) : x(_x), y(_y), z(_z) {} 
 			std::vector<rle::entity::Entity*> entities;
 			unsigned int x;
 			unsigned int y;
 			unsigned int z; 
-			rle::entity::Entity* operator[](unsigned int index){
-				return entities.at(index);  
+			rle::entity::Entity& operator[](unsigned int index){
+				return *(entities.at(index));  
 			}
-			rle::entity::Entity* GetEntity(unsigned int index){
-				return entities.at(index);
+  			rle::entity::Entity& GetEntity(unsigned int index){
+				return *(entities.at(index));
 			}
 		};
 		
 		class TileMap{
 			std::string name;
-			std::vector<LayerIface> data_layers;
+			std::vector<Layer*> data_layers;
 			std::vector<Tile> tiles;
 			unsigned int size;
 			unsigned int max_x;
@@ -74,7 +68,7 @@ namespace rle{
 			unsigned int max_z;
 		public:
 			TileMap(std::string name, unsigned int x, unsigned int y, unsigned int z);
-
+			~TileMap();
 			std::string Name() { return name; }
 			
 			Tile& operator[](unsigned int i);
@@ -82,8 +76,8 @@ namespace rle{
 
 			template<typename T>
 			void NewLayer(std::string _name, T init_val);
-			LayerIface& GetLayer(std::string _name);
-		        LayerIface& GetLayer(unsigned int index);				      
+			Layer& GetLayer(std::string _name);
+		        Layer& GetLayer(unsigned int index);				      
 			void DelLayer(std::string _name);
 			void DelLayer(unsigned int index); 
 		};	

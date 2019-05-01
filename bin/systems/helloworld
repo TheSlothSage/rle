@@ -1,5 +1,10 @@
 systems.helloworld = {}
-systems.helloworld.functions = {"Init", 1} 
-systems.helloworld.Init = function()
-	printmessage("world hello")
-	end
+systems.helloworld.functions = {"Init", "Update"} 
+
+function systems.helloworld.Init ()
+	print("hello world")
+end
+
+function systems.helloworld.Update ()
+	print("update")
+end

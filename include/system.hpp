@@ -1,9 +1,9 @@
 #pragma once
 extern "C" {
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
-}
+# include "lua.h"
+# include "lauxlib.h"
+# include "lualib.h"
+ }
 #include "LuaBridge.h"
 #include <vector>
 #include <string>
@@ -12,9 +12,11 @@ extern "C" {
 #include <map>
 #include <sstream>
 namespace rle {
+	class RLE;
 	namespace system{
 
 		class Call{
+		protected:
 			std::string name;
 		public:
 			Call(std::string _name);
@@ -25,27 +27,26 @@ namespace rle {
 		};
 		class LuaCall : Call{
 			std::string system_name;
-			std::string name;
+			lua_State* L;
 		public:
-			LuaCall(lua_State* L, std::string _system_name, std::string _name); 		       
+			LuaCall(lua_State* L, std::string _system_name, std::string _name);	
 			void Exec(); 
 		};
 		
 		class System{
 		protected:
 			std::string name;
-			lua_State* L;
 			unsigned int max_priority = 0;
 			std::map<std::string, Call*> call_objs;
 		public:
-			System(lua_State* _L, std::string _name);
+			System(std::string _name);
 			virtual ~System() = 0;
-			std::string Name(){
+			std::string& Name(){
 				return name;
 			}
 			void C_Name(char** _name){
 				*_name = new char[name.length()+1];
-				std::strcpy(*_name, name.c_str());
+				std::strcpy(*_name, name.c_str()); 
 			}
 			
 			virtual void NewCall(std::string key_str, unsigned int priority) = 0;
@@ -53,12 +54,15 @@ namespace rle {
 			virtual void DelCall(std::string key_str) = 0; 
 			virtual void ExecAll() = 0;
 			virtual void ExecFunc(std::string key_str) = 0;
+			void PopulateIntoRLESystemTable(rle::RLE& rle); // in rle.cpp
 		};
 
 		class LuaSystem :  System{
+		protected:
+			lua_State* L;
 		public:	
 			LuaSystem(lua_State* _L, std::string _name);
-			~LuaSystem();
+			~LuaSystem();  
 			void NewCall(std::string str, unsigned int priority);
 			void DelCall(unsigned int index);
 			void DelCall(std::string key_str); 
