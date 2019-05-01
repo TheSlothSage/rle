@@ -53,7 +53,7 @@ namespace rle{
 			rle::entity::Entity& operator[](unsigned int index){
 				return *(entities.at(index));  
 			}
-			rle::entity::Entity& GetEntity(unsigned int index){
+  			rle::entity::Entity& GetEntity(unsigned int index){
 				return *(entities.at(index));
 			}
 		};

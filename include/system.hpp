@@ -41,7 +41,7 @@ namespace rle {
 		public:
 			System(std::string _name);
 			virtual ~System() = 0;
-			std::string Name(){
+			std::string& Name(){
 				return name;
 			}
 			void C_Name(char** _name){

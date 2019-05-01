@@ -31,6 +31,7 @@ namespace rle{
 		bool running = false;
 	public:
 		RLE();
+		virtual ~RLE() = default;
 		
 		void Start();
 		bool State();
