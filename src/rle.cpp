@@ -11,9 +11,10 @@ void rle::RLE::InitLua(){
 	//create lua state and open all the libraries
 	L = luaL_newstate();
 	luaL_openlibs(L);
-	// create the component and system tables
+	// create the component, system, and tilemap tables
 	luaL_dostring(L, "components = {}");
 	luaL_dostring(L, "systems = {}");
+	luaL_dostring(L, "tilemaps = {}");
 }
 
 void rle::RLE::InitEntities(){
@@ -25,15 +26,13 @@ void rle::RLE::InitEntities(){
 
 	if (luaL_loadfile(L, "rle.initstate.lua") ||
 	    lua_pcall(L, 0, 1, 0)) {
-		std::cout << "rle::RLE::RLE() : rle.initsate.lua either does not exist or has been moved" << std::endl;
-		exit;
+		throw std::runtime_error("rle::RLE::RLE() : rle.initsate.lua either does not exist, has been moved, or there is an error in the lua code\nLua output:\n\t" + std::string(lua_tostring(L, -1)));	       
 	}
 	
 	luabridge::LuaRef init_entity_table = luabridge::LuaRef::fromStack(L, -1);
 
 	if(init_entity_table.isNil()){
-		std::cout << "rle::RLE::RLE() : entities table does not exist in rle.initstate.lua" << std::endl;
-		exit;
+		throw std::runtime_error("rle::RLE::RLE() : entities table does not exist in rle.initstate.lua");	       
 	}
 
 	
@@ -53,7 +52,7 @@ void rle::RLE::InitEntities(){
 		z = iter_table["z"].cast<unsigned int>();
 		luabridge::LuaRef component_table = iter_table["components"];
 		if(component_table.isNil()){
-			throw "RLE::Component::Component() : Entity does not have asociated component table"; 
+			throw std::runtime_error("RLE::Component::Component() : Entity does not have asociated component table"); 
 		}
 			
 		std::cout << "\t-Entity: " << name << std::endl;
@@ -99,6 +98,10 @@ void rle::RLE::InitEntities(){
 		}
 	}
 	std::cout << "Initialization of RLE state complete!" << std::endl;
+}	
+
+rle::RLE::~RLE(){
+	for(entity::Entity*& ent : global_entity_table) { delete ent; } 
 }
 
 void rle::RLE::Start(){

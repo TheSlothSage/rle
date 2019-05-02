@@ -31,10 +31,11 @@ namespace rle{
 		bool running = false;
 	public:
 		RLE();
-		virtual ~RLE() = default;
-		
+		virtual ~RLE();
 		void Start();
 		bool State();
+
+		lua_State* LuaState() { return L; }
 		
 		void NewEntity(entity::Entity& entity);
 		void DelEntity(unsigned int index);

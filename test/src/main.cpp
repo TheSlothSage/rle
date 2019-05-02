@@ -1,6 +1,6 @@
 // main.cpp
 #include <iostream>
-#include "irle.hpp"
+#include "gamecontroller.hpp"
 
 
 int main() {
