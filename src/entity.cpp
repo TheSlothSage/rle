@@ -15,6 +15,10 @@ rle::entity::Entity::Entity(lua_State* _L, tile::TileMap& _tilemap, std::vector<
 				}
 }
 
+rle::entity::Entity::~Entity(){
+	for(component::Component*& com : component_table){ delete com; }
+}
+
 rle::component::Component& rle::entity::Entity::GetComponent(std::string name){
 	for(component::Component*& com : component_table){
 		if(com->Name() == name){

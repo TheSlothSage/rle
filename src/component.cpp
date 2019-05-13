@@ -7,7 +7,7 @@ rle::component::Component::Component(std::string _name, lua_State* L) : name(_na
 	if (luaL_loadfile(L, pathname.c_str()) ||
 	    lua_pcall(L, 0, 0, 0)) {
 		//there are many other ways this can fail btw
-		throw std::runtime_error("rle::component::Component() : " + pathname + " either does not exist, has been moved, or script has invalid syntax. Returned with error:\n" + std::string(lua_tostring(L, -1))); 
+		throw std::runtime_error("rle::component::Component() : " + pathname + " either does not exist, has been moved, or script is somehow invalid. Returned with error:\n" + std::string(lua_tostring(L, -1))); 
 	}
 	luabridge::LuaRef component_table = luabridge::LuaRef::getGlobal(L, "components");
 	luabridge::LuaRef component = component_table[name];
@@ -64,6 +64,10 @@ rle::component::Component::Component(std::string _name, lua_State* L) : name(_na
 	// pop key
 	lua_pop(L, 1);
 		
+}
+
+rle::component::Component::~Component(){
+	
 }
 
 luabridge::LuaRef& rle::component::Component::Get (std::string _data){	
