@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <LuaBridge/detail/Stack.h>
+#include <Stack.h>
 
 #include <vector>
 

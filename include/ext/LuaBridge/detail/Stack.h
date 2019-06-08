@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include <LuaBridge/detail/LuaHelpers.h>
+#include <LuaHelpers.h>
 
 #include <string>
 

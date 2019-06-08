@@ -1,9 +1,9 @@
 #include "entity.hpp"
 #include <iostream>
 
-rle::entity::Entity::Entity(lua_State* _L, tile::TileMap& _tilemap, std::vector<std::string> components,
+rle::entity::Entity::Entity(lua_State* L_, tile::TileMap& _tilemap, std::vector<std::string> components,
 			    std::string _name, unsigned int _x, unsigned int _y, unsigned int _z) :
-	                         L(_L), name(_name), x(_x), y(_y), z(_z), tilemap(_tilemap), tile(_tilemap(_x,_y,_z)) {
+	                         L(L_), name(_name), x(_x), y(_y), z(_z), tilemap(_tilemap), tile(_tilemap(_x,_y,_z)) {
 	
 				for(std::vector<std::string>::iterator iter = components.begin(); iter != components.end();
 				    ++iter)
@@ -11,7 +11,6 @@ rle::entity::Entity::Entity(lua_State* _L, tile::TileMap& _tilemap, std::vector<
 					std::cout << "\t\tLoading component " << *iter << std::endl;
 					component::Component* component = new component::Component(*iter, L); 
 					component_table.push_back(component);
-					
 				}
 }
 

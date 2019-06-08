@@ -12,13 +12,14 @@ extern "C" {
 #include <map>
 #include <sstream>
 namespace rle {
-	class RLE;
+	struct RLE;
 	namespace system{
 
 		class Call{
 		protected:
 			std::string name;
 		public:
+			bool enabled = true; // if disabled it won't call until renabled manually
 			Call(std::string _name);
 			std::string Name(){
 				return name;
@@ -61,7 +62,7 @@ namespace rle {
 		protected:
 			lua_State* L;
 		public:	
-			LuaSystem(lua_State* _L, std::string _name);
+			LuaSystem(lua_State* L, std::string name);
 			~LuaSystem();  
 			void NewCall(std::string str, unsigned int priority);
 			void DelCall(unsigned int index);

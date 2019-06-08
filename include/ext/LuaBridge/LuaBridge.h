@@ -42,17 +42,17 @@
 #endif
 
 
-#include <LuaBridge/detail/LuaHelpers.h>
-#include <LuaBridge/detail/TypeTraits.h>
-#include <LuaBridge/detail/TypeList.h>
-#include <LuaBridge/detail/FuncTraits.h>
-#include <LuaBridge/detail/Constructor.h>
-#include <LuaBridge/detail/ClassInfo.h>
-#include <LuaBridge/detail/LuaException.h>
-#include <LuaBridge/detail/LuaRef.h>
-#include <LuaBridge/detail/Iterator.h>
-#include <LuaBridge/detail/Userdata.h>
-#include <LuaBridge/detail/CFunctions.h>
-#include <LuaBridge/detail/Security.h>
-#include <LuaBridge/detail/Stack.h>
-#include <LuaBridge/detail/Namespace.h>
+#include <LuaHelpers.h>
+#include <TypeTraits.h>
+#include <TypeList.h>
+#include <FuncTraits.h>
+#include <Constructor.h>
+#include <ClassInfo.h>
+#include <LuaException.h>
+#include <LuaRef.h>
+#include <Iterator.h>
+#include <Userdata.h>
+#include <CFunctions.h>
+#include <Security.h>
+#include <Stack.h>
+#include <Namespace.h>

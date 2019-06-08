@@ -3,7 +3,7 @@
 
 rle::RLE::RLE(){
 	//init test tilemap, this should be deleted and should use the initstate script
-	tile_map_table.push_back(new tile::TileMap("test", 100, 100, 100));
+	tile_map_table.push_back(new tile::TileMap("test", 10, 10, 10));
 	InitLua();	
 }
 
@@ -17,106 +17,19 @@ void rle::RLE::InitLua(){
 	luaL_dostring(L, "tilemaps = {}");
 }
 
-void rle::RLE::InitEntities(){
-	std::vector<std::string> components;
-	std::string name;
-	unsigned int x;
-	unsigned int y;
-	unsigned int z;
-
-	if (luaL_loadfile(L, "rle.initstate.lua") ||
-	    lua_pcall(L, 0, 1, 0)) {
-		throw std::runtime_error("rle::RLE::RLE() : rle.initsate.lua either does not exist, has been moved, or there is an error in the lua code\nLua output:\n\t" + std::string(lua_tostring(L, -1)));	       
-	}
-	
-	luabridge::LuaRef init_entity_table = luabridge::LuaRef::fromStack(L, -1);
-
-	if(init_entity_table.isNil()){
-		throw std::runtime_error("rle::RLE::RLE() : entities table does not exist in rle.initstate.lua");	       
-	}
-
-	
-	std::cout << "Initializing Init Entities..." << std::endl;
-	
-	for(int i = 1; i <= lua_rawlen(L, -1); ++i){
-		luabridge::LuaRef iter_table = init_entity_table[i];
-		
-		if(iter_table.isNil()){
-			std::cout << "rle::RLE::RLE() : failed" << std::endl;
-			exit;
-		}
-		// probably should check if these exist			
-		name = iter_table["name"].cast<std::string>();	     
-		x = iter_table["x"].cast<unsigned int>();
-		y = iter_table["y"].cast<unsigned int>();
-		z = iter_table["z"].cast<unsigned int>();
-		luabridge::LuaRef component_table = iter_table["components"];
-		if(component_table.isNil()){
-			throw std::runtime_error("RLE::Component::Component() : Entity does not have asociated component table"); 
-		}
-			
-		std::cout << "\t-Entity: " << name << std::endl;
-		std::cout << "\t\t-At(" << x << "," << y << "," << z << ")" << std::endl;
-		std::cout << "\t\t-Components" << std::endl;	       
-
-		component_table.push();	
-		lua_pushnil(L); 
-		while(lua_next(L, -2)){
-			if(lua_isstring(L, -1)){
-				std::cout << "\t\t\t-" << std::string(lua_tostring(L, -1)) << std::endl;
-				components.push_back(lua_tostring(L, -1));
-			}
-			else{
-				throw std::runtime_error("rle::RLE::RLE() : enitities->component table contains value other than string in rle.initstate.lua");
-			}
-			std::cout << "\t\tSpawning Entity..." << std::endl;
-			global_entity_table.push_back(new entity::Entity(L, *(tile_map_table.at(0)), components, name, x, y, z));	   
-			components.clear();
-			// pop value
-			lua_pop(L, 1); 
-		}
-		// clear stack
-		lua_settop(L,0);
-	}
-
-	// Now loop through everything and populate all the global tables
-
-	std::cout << "Loading Initialized Entities Into Tables..." << std::endl;
-	
-	for(entity::Entity*& ent : global_entity_table){
-		std::vector<component::Component*>& components = ent->Components();
-		for(component::Component*& com : components){
-			if(!CheckComponent(com->Name())){
-				global_component_table.push_back(com->Name());
-			}
-			std::vector<system::System*>& systems = com->Systems();
-			for(system::System*& sys : systems){
-				if(!CheckSystem(sys->Name())){
-					global_system_table.push_back(sys); 
-				}
-			}			
-		}
-	}
-	std::cout << "Initialization of RLE state complete!" << std::endl;
-}	
-
 rle::RLE::~RLE(){
 	for(entity::Entity*& ent : global_entity_table) { delete ent; } 
 }
 
-void rle::RLE::Start(){
-	// Init Tile Maps 
-	InitEntities();
-	running = true;
-	// Begin Game Loop
-}
-
-bool rle::RLE::State(){
-	return running; 
-}
-
 void rle::RLE::NewEntity(entity::Entity& entity){
 	global_entity_table.push_back(new entity::Entity(entity)); 
+}
+
+void rle::RLE::NewEntity(entity::Entity* entity) {
+	global_entity_table.push_back(entity);
+}
+void rle::RLE::NewEntity(std::string name, std::string tilemap, std::vector<std::string> components, unsigned int x, unsigned int y, unsigned int z) {
+	global_entity_table.push_back(new entity::Entity(L, GetTileMap(tilemap), components, name, x, y, z));
 }
 
 void rle::RLE::DelEntity(unsigned int index){
@@ -252,5 +165,30 @@ void rle::system::System::PopulateIntoRLESystemTable(rle::RLE& rle){
 	if(rle.CheckSystem(name)) { return; }
 	else{
 		rle.AddSystem(this);
+	}
+}
+
+// tilemap operations
+
+void rle::RLE::NewTileMap(tile::TileMap tilemap)
+{
+	tile_map_table.push_back(new tile::TileMap(tilemap));
+}
+
+void rle::RLE::DelTileMap(std::string name) {
+	for (std::vector<tile::TileMap*>::iterator it = tile_map_table.begin(); it != tile_map_table.end(); ++it) {
+		if ((*it)->Name() == name) {
+			tile_map_table.erase(it);
+		}
+	}
+	throw std::runtime_error("Failed to find tilemap with name: " + name);
+}
+
+void rle::RLE::DelTileMap(unsigned int index) {
+	try {
+		tile_map_table.erase(tile_map_table.begin() + index);
+	}
+	catch (std::out_of_range & e) {
+		throw std::runtime_error("Failed to find tilemap at index, as it was out of range");
 	}
 }
