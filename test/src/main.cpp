@@ -1,13 +1,15 @@
 // main.cpp
 #include <iostream>
-#include "gamecontroller.hpp"
+#include "rle_engine.hpp"
 
 
 int main() {
 	try{
 		//rle::RLE& rle = *(new rle::RLE());
-		rle::interface::basic_irle iface;
-		iface.Do().GiveInstance().Start();
+		auto g = rle::game::GameController();
+		g.LoadWidget(rle::game::widgets::DebugCall());
+		g.LoadWidget(rle::game::widgets::CriticalWidget());
+		g.Start();
 	} catch(std::exception& e){
 		std::cerr << e.what() << std::endl;	
 		return 0; // EXIT_FAIL

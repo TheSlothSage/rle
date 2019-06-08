@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include <LuaBridge/detail/TypeList.h>
+#include <TypeList.h>
 
 #include <cassert>
 

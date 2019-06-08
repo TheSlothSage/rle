@@ -29,8 +29,8 @@
 
 #pragma once
 
-#include <LuaBridge/detail/Security.h>
-#include <LuaBridge/detail/TypeTraits.h>
+#include <Security.h>
+#include <TypeTraits.h>
 
 #include <stdexcept>
 #include <string>

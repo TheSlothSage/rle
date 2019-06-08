@@ -18,7 +18,7 @@ void rle::system::Call::Exec(){}
 
 // At some point if we start adding more languages and other ways to interact 
 // One could change this to inherit from a base Call object 
-rle::system::LuaCall::LuaCall(lua_State* _L, std::string _system_name, std::string _name) : Call(_name), system_name(_system_name), L(_L){	
+rle::system::LuaCall::LuaCall(lua_State* L_, std::string _system_name, std::string _name) : Call(_name), system_name(_system_name), L(L_){	
 	luabridge::LuaRef system_table_ref = luabridge::getGlobal(L, "systems");
 	luabridge::LuaRef system_ref = system_table_ref[system_name.c_str()];
 	if(system_ref.isNil()){
@@ -31,7 +31,6 @@ rle::system::LuaCall::LuaCall(lua_State* _L, std::string _system_name, std::stri
 	if(!function.isFunction()){
 			throw std::runtime_error("rle::system::LuaCall() : function with name " + system_name + "." + _name + " is not a function\n");
 	}
-	std::cout << "\t\t\t\t\t\t-" << "systems." + system_name + "." << name << std::endl;
 }
 
 void rle::system::LuaCall::Exec(){
@@ -39,15 +38,9 @@ void rle::system::LuaCall::Exec(){
 	luaL_dostring(L, std::string(lua_func_name + "()").c_str());
 }
 
-rle::system::LuaSystem::LuaSystem(lua_State* _L, std::string _name) : L(_L), system::System(_name){
-	std::string pathname = "systems/" + name;
-	std::string fullname = "systems." + name;
+rle::system::LuaSystem::LuaSystem(lua_State* L_, std::string _name) : L(L_), system::System(_name){
 	
-	if (luaL_loadfile(L, pathname.c_str()) ||
-	    lua_pcall(L, 0, 0, 0)) {
-		//there are many other ways this can fail btw
-		throw std::runtime_error(lua_tostring(L,-1)); 
-	}
+	std::string fullname = "systems." + name;
 	
 	luabridge::LuaRef system_table = luabridge::LuaRef::getGlobal(L, "systems");
 	luabridge::LuaRef system = system_table[name];
@@ -60,7 +53,6 @@ rle::system::LuaSystem::LuaSystem(lua_State* _L, std::string _name) : L(_L), sys
 	}
 	functions.push();
 	lua_pushnil(L);
-	std::cout << "\t\t\t\t\tMaking call table..." << std::endl;
 	while(lua_next(L, -2)){		
 		if(lua_isstring(L, -1)){
 			NewCall(std::string(lua_tostring(L,-1)), 0);
@@ -95,9 +87,20 @@ void rle::system::LuaSystem::DelCall(std::string key_str){
 }
 
 void rle::system::LuaSystem::ExecAll(){
-	// Do lua shtuff here
+	for (std::map<std::string, system::Call*>::iterator it = call_objs.begin(); it != call_objs.end(); ++it) {
+		it->second->Exec();
+	}
 }
 
 void rle::system::LuaSystem::ExecFunc(std::string key_str){
-	// Do lua shtuff here 
+	try {
+		Call* call = call_objs[key_str];
+		if (call->enabled) {
+			call->Exec();
+		}
+		return;
+	}
+	catch(std::exception& e){
+		return;
+	}
 }
