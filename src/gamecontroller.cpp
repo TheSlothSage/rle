@@ -6,8 +6,7 @@
 std::string rle::game::EntityContext::entity_context = "undefined";
 rle::entity::Entity* rle::game::EntityContext::entity_ptr = nullptr;
 
-rle::interface::basic_irle* rle::game::Irle::irle = nullptr;
-
+rle::interface::basic_irle* rle::game::Irle::irle = nullptr; 
 
 void rle::game::GameController::LoadWidget(Controller_Widget& widget) {
 	widget.SetInterface(&(this->irle));
@@ -89,3 +88,6 @@ void rle::game::GameController::Start() {
 	lua_settop(irle.Do().LuaState(), -1);
 
 }
+
+
+

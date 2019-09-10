@@ -1,25 +1,25 @@
 #pragma once 
 
+extern "C"{ 
+#include "math.h" 
+}
+
 #include "component.hpp"
+#include "irle.hpp"
 
 namespace rle{
 
 	template<class container_T>
 	class lua_Reg {
 	protected:
-		lua_Reg(interface::basic_irle* rle_, container_T* container_) : rle(rle_), container(container_) { ++obj_count; }
+		lua_Reg(rle::interface::basic_irle* rle_, container_T* container_) : rle(rle_), container(container_) { ++obj_count; }
 		~lua_Reg() { --obj_count; }
 
 		container_T* container;
-		interface::basic_irle* rle;
+		rle::interface::basic_irle* rle;
 
 		static int obj_count;
 	};
-
-	template<class T>
-	int lua_Reg<T>::obj_count = 0;
-	int lua_Reg<rle::component::Component>::obj_count = 0;
-	int lua_Reg<rle::entity::Entity>::obj_count = 0;
 
 	namespace component {
 
@@ -52,23 +52,10 @@ namespace rle{
 		using lua_Str = lua_Data<std::string>;
 		using lua_Boo = lua_Data<bool>;
 
-		int lua_Num::type = ComponentData<lua_Number>::type;
-		int lua_Str::type = ComponentData<std::string>::type;
-		int lua_Boo::type = ComponentData<bool>::type;
-
-		template<> lua_Number lua_Num::get() { return std::get<1>(dat).getData(); }
-		template<> std::string lua_Str::get() { return std::get<2>(dat).getData(); }
-		template<> bool lua_Boo::get() { return std::get<3>(dat).getData(); }
-
-		template<> void lua_Num::set(lua_Number lval) { std::get<1>(dat).setData(lval); }
-		template<> void lua_Str::set(std::string lval) { std::get<2>(dat).setData(lval); }
-		template<> void lua_Boo::set(bool lval) { std::get<3>(dat).setData(lval); }
-
-
 		class lua_Component : protected rle::lua_Reg<Component> {
 		
 		public:
-			lua_Component(interface::basic_irle* rle, Component* component) : lua_Reg(rle, component) {}
+			lua_Component(rle::interface::basic_irle* rle, Component* component) : lua_Reg(rle, component) {}
 			~lua_Component() = default;
 
 			std::string getStr(std::string key) {
@@ -92,16 +79,16 @@ namespace rle{
 	
 	namespace entity {
 		struct lua_Entity : protected rle::lua_Reg<Entity> {
-			lua_Entity(interface::basic_irle* rle, Entity* entity) : lua_Reg(rle, entity) {}
+			lua_Entity(rle::interface::basic_irle* rle, Entity* entity) : lua_Reg(rle, entity) {}
 			~lua_Entity() = default;		
 
 			int getTile_X() const { return container->X(); }
 			int getTile_Y() const { return container->Y(); }
 			int getTile_Z() const { return container->Z(); }
 
-			void setTile_X(double x) { container->setX(std::round(x)); }
-			void setTile_Y(double y) { container->setY(std::round(y)); }
-			void setTile_Z(double z) { container->setZ(std::round(z)); }
+			void setTile_X(double x) { container->setX(::round(x)); }
+			void setTile_Y(double y) { container->setY(::round(y)); }
+			void setTile_Z(double z) { container->setZ(::round(z)); }
 
 			component::lua_Component get(std::string key) {
 				return component::lua_Component(rle, &rle->Instantiate<rle::entity::Entity>(*container).Do().Component(key));

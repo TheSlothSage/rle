@@ -2,7 +2,6 @@
 
 #include "irle.hpp"
 
-
 namespace rle{
 	namespace game{		
 

@@ -1,7 +1,21 @@
 #include "component.hpp"
 #include <stdexcept>
 
+template<class T> 
+int rle::component::ComponentData<T>::type = -1; // error,  don't be this
 
+template<> int rle::component::ComponentData<lua_Number>::type = LUA_TNUMBER;
+template<> int rle::component::ComponentData<std::string>::type = LUA_TSTRING;
+template<> int rle::component::ComponentData<bool>::type = LUA_TBOOLEAN;
+
+template<> bool rle::component::ComponentData<bool>::getData() { return data; }
+template<> void rle::component::ComponentData<bool>::setData(bool data_) { data = data_; }
+
+template<> lua_Number rle::component::ComponentData<lua_Number>::getData() { return data; }
+template<> void rle::component::ComponentData<lua_Number>::setData(lua_Number data_) { data = data_; }
+
+template<> std::string rle::component::ComponentData<std::string>::getData() { return data; }
+template<> void rle::component::ComponentData<std::string>::setData(std::string data_) { data = data_; }			
 
 rle::component::Component::Component(std::string _name, lua_State* L) : name(_name) {
 	std::string fullname = std::string("components." + name);

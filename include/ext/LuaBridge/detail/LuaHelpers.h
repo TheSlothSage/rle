@@ -29,8 +29,9 @@
 
 #pragma once
 
-#include <cassert>
-
+extern "C"{
+#include "assert.h" 
+}
 namespace luabridge {
 
 // These are for Lua versions prior to 5.2.0.

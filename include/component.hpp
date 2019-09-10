@@ -12,7 +12,7 @@ extern "C" {
 #include <map>
 #include <variant>
 #include "system.hpp"
-
+			
 namespace rle{
 	namespace component{ 
 
@@ -35,28 +35,11 @@ namespace rle{
 			T data;
 		};
 
-		lua_Number ComponentData<lua_Number>::getData() { return data; }
-		std::string ComponentData<std::string>::getData() { return data; }
-		bool ComponentData<bool>::getData() { return data; }
-
-		void ComponentData<lua_Number>::setData(lua_Number number) { data = number; }
-		void ComponentData<std::string>::setData(std::string str) { data = str; }
-		void ComponentData<bool>::setData(bool boo) { data = boo; }
-
-		
-
 		typedef BaseComponentData Data;		
 		template<class T>
 		using T_Data = ComponentData<T>;
 		using comp_T = std::variant<std::monostate, ComponentData<lua_Number>, ComponentData<std::string>, ComponentData<bool>>;
 		
-		template<class T> 
-		int ComponentData<T>::type = -1; // error,  don't be this
-
-		int ComponentData<lua_Number>::type = LUA_TNUMBER;
-		int ComponentData<std::string>::type = LUA_TSTRING;
-		int ComponentData<bool>::type = LUA_TBOOLEAN;
-
 		class Component{
 			std::string name;
 			lua_State * L;						
