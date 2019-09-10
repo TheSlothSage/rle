@@ -1,6 +1,6 @@
-rle.newTilemap("test", 100, 100, 1)
+rle.newTilemap("system_space", 100, 100, 1)
 rle.loadComponent("helloworld")
 rle.loadSystem("helloworld")
 
-rle.newEntity("hello", "test", 0, 0, 0):addComponent("helloworld")
+rle.newEntity("helloworld", "test", 0, 0, 0):addComponent("helloworld")
 
