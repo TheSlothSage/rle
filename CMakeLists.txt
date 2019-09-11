@@ -24,7 +24,6 @@ set(HEADER_DIRS "include")
 foreach(header ${HEADERS})
 	get_filename_component(_dir ${header} DIRECTORY)
 	list (APPEND HEADER_DIRS ${_dir})
-	message(${_dir})
 endforeach()
 
 list(REMOVE_DUPLICATES HEADER_DIRS)
@@ -33,6 +32,6 @@ link_directories(${STATIC_LIBRARY_PATH})
 
 add_library(rle ${RLE_SOURCES}) 
 
-target_link_libraries(rle lua53 dl)
+target_link_libraries(rle lua dl)
 
 add_subdirectory(test)

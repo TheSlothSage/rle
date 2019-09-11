@@ -5,10 +5,12 @@
 
 int main() {
 	try{
-		//rle::RLE& rle = *(new rle::RLE());
+
+		auto cw = rle::game::widgets::DebugCall();
+		auto dc = rle::game::widgets::CriticalWidget();
 		auto g = rle::game::GameController();
-		g.LoadWidget(rle::game::widgets::DebugCall());
-		g.LoadWidget(rle::game::widgets::CriticalWidget());
+		g.LoadWidget(cw);
+		g.LoadWidget(dc);
 		g.Start();
 	} catch(std::exception& e){
 		std::cerr << e.what() << std::endl;	
