@@ -7,9 +7,9 @@ namespace rle {
 		namespace widgets {
 			//required to run the game because it registers a bunch of really important stuff to lua
 			
-			class CriticalWidget : public Controller_Widget {
+			class SDLRender : public Controller_Widget {
 			public:
-				CriticalWidget();
+				SDLRender();
 				bool register_functions = true;
 				virtual void Do();
 				virtual void UpdateMembers(Base_Widget_State& state) {};
@@ -17,7 +17,7 @@ namespace rle {
 			};
 			
 			template<>
-			class Widget_State <CriticalWidget> : public Base_Widget_State{};
+			class Widget_State <SDLRender> : public Base_Widget_State{};
 		}
 	}
 }

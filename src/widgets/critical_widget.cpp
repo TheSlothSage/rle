@@ -33,6 +33,12 @@ rle::entity::lua_Entity NewEntity(std::string name, std::string tilemap_name, un
 	return GetEntity(name);
 }
 
+void DelEntity(std::string name) {
+	rle::interface::basic_irle& irle = *rle::game::Irle::irle;
+	irle.Do().delEntity(name); 
+	return;
+}
+
 void lua_LoadComponent(std::string name) {
 	rle::interface::basic_irle& irle = *rle::game::Irle::irle;
 	irle.Do().loadScript(std::string("components/" + name + ".lua"));
@@ -83,7 +89,8 @@ void rle::game::widgets::CriticalWidget::Do() {
 				.addFunction("entityName", GetThisEntityName)
 				.addFunction("this", GetThisEntity)
 				.addFunction("getEntity", GetEntity)
-				.addFunction("newEntity", NewEntity)
+				.addFunction("newEntity", NewEntity)	
+				.addFunction("delEntity", DelEntity)
 				.addFunction("newTilemap", NewTilemap)
 				.addFunction("loadComponent", lua_LoadComponent)
 				.addFunction("loadSystem", lua_LoadSystem)

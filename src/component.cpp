@@ -60,6 +60,7 @@ rle::component::Component::Component(std::string _name, lua_State* L) : name(_na
 	std::string data_name;
 	datatable.push();
 	lua_pushnil(L);
+
 	while (lua_next(L, -2)) {
 		data_name = luabridge::LuaRef::fromStack(L, -2).cast<std::string>();
 		comp_T v = std::monostate();
@@ -92,7 +93,7 @@ rle::component::Component::Component(std::string _name, lua_State* L) : name(_na
 }
 
 rle::component::Component::~Component(){
-	
+		
 }
 
 rle::component::BaseComponentData& rle::component::Component::Get (std::string _data){	
