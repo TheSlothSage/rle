@@ -1,6 +1,6 @@
 #pragma once
 #include "gamecontroller.hpp"
-
+#include "SDLRender.hpp"
 
 namespace rle {
 	namespace game {

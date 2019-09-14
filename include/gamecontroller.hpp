@@ -1,7 +1,6 @@
 #pragma once
 
 #include "irle.hpp"
-#include "renderer.hpp" 
 
 namespace rle{
 	namespace game{		

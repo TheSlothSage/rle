@@ -13,6 +13,7 @@ int main() {
 		auto g = rle::game::GameController();
 		g.LoadWidget(cw);
 		g.LoadWidget(dc);
+		g.LoadWidget(sdl); 
 		g.Start();
 	} catch(std::exception& e){
 		std::cerr << e.what() << std::endl;	

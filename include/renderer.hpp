@@ -35,8 +35,8 @@ namespace rle{
 			protected:
 
 				std::vector<rle::entity::Entity*> entity_buf; 
-				const unsigned int x;
-				const unsigned int y;
+				unsigned int x;
+				unsigned int y;
 				
 				void accept(visitor::Visitor<thisType>* v) { v->visit(this); }
 
@@ -52,8 +52,9 @@ namespace rle{
 				unsigned int getX() { return x; }
 				unsigned int getY() { return y; } 
 
+				void setX(unsigned int x_) { x = x_; entity_buf.resize(y*x); }
+				void setY(unsigned int y_) { y = y_; entity_buf.resize(y*x); } 
 		};
-
 	}
 }
 

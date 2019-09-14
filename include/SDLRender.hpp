@@ -4,7 +4,7 @@
 namespace rle{
 	namespace render{
 
-		struct SDLRender : rle::render::Element<SDLRender>{
+		struct SDLRender : public rle::render::Element<SDLRender>{
 			
 			SDLRender(unsigned int x, unsigned int y) : rle::render::Element<SDLRender>(x, y) {}
 			~SDLRender();
