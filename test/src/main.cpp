@@ -8,6 +8,8 @@ int main() {
 
 		auto cw = rle::game::widgets::DebugCall();
 		auto dc = rle::game::widgets::CriticalWidget();
+		auto sdl = rle::game::widgets::SDLRender(); 
+
 		auto g = rle::game::GameController();
 		g.LoadWidget(cw);
 		g.LoadWidget(dc);
