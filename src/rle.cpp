@@ -3,7 +3,6 @@
 
 rle::RLE::RLE(){
 	//init test tilemap, this should be deleted and should use the initstate script
-	tile_map_table.push_back(new tile::TileMap("test", 10, 10, 10));
 	InitLua();	
 }
 

@@ -28,6 +28,9 @@ rle::tile::Tile& rle::tile::TileMap::operator[](unsigned int i){
 }
 
 rle::tile::Tile& rle::tile::TileMap::operator()(unsigned int x, unsigned int y, unsigned int z){
+	if(x >= max_x || y >= max_y || z >= max_z){
+		throw std::runtime_error("TileMap::operator() : out of bounds index");
+	}
 	return tiles.at(x + y*max_x + z*max_y*max_x); 
 }
 

@@ -10,5 +10,4 @@ function systems.helloworld.Init ()
 end
 
 function systems.helloworld.Update()
-	print(rle.this():getComponent("helloworld"):getStr("hello"))
 end

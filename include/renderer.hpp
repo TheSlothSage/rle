@@ -28,33 +28,39 @@ namespace rle{
 			};
 			
 		}
-		
+		 
+
 		template <class thisType>
 		class Element {
 		
 			protected:
 
-				std::vector<rle::entity::Entity*> entity_buf; 
 				unsigned int x;
 				unsigned int y;
-				
+
 				void accept(visitor::Visitor<thisType>* v) { v->visit(this); }
 
 			public:
 			
 				// waste no time in filling the vector with nullptrs. 
 
-				Element(unsigned int x_, unsigned int y_) : x(x_), y(y_) 
-				{ entity_buf.reserve(x_*y_); std::fill(entity_buf.begin(), entity_buf.end(), nullptr); } 
+				Element(unsigned int x_, unsigned int y_) 
+				        : x(x_), y(y_) {} 
 				
 				~Element() = default;
+                                
+                                rle::entity::Entity* getEntity(unsigned int x, unsigned int y, unsigned int z){
+                                        
+                                } 
+				
+				unsigned int getX() const { return x; }
+				unsigned int getY() const { return y; } 
 
-				unsigned int getX() { return x; }
-				unsigned int getY() { return y; } 
-
-				void setX(unsigned int x_) { x = x_; entity_buf.resize(y*x); }
-				void setY(unsigned int y_) { y = y_; entity_buf.resize(y*x); } 
+				void setX(unsigned int x_) { x = x_; }
+				void setY(unsigned int y_) { y = y_; } 
 		};
+
+	
 	}
 }
 

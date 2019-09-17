@@ -3,6 +3,7 @@
 #include <string>
 #include <variant>
 #include <memory>
+#include <tuple>
 
 namespace rle{
 
@@ -27,9 +28,12 @@ namespace rle{
 		template<typename T>
 		class Derived_Layer : protected Layer{
 		protected:
+			
 			std::vector<T> data;
 			T init_val;
+		
 		public:
+			
 			Derived_Layer(std::string _name, T _init_val, unsigned int _max_x, unsigned int _max_y, unsigned int _max_z) : Layer(_name, _max_x, _max_y, _max_z), init_val(_init_val) {
 				data.reserve(max_x*max_y*max_z); 
 				for(typename std::vector<T>::iterator i = data.begin(); i != data.end(); ++i){
@@ -43,13 +47,18 @@ namespace rle{
 			T& GetData(unsigned int x, unsigned int y, unsigned int z){
 				return *(data.at(x + y*max_x + z*max_x*max_y));
 			}
+		
 		};
 		struct Tile{
+			
 			Tile(unsigned int _x, unsigned int _y, unsigned int _z) : x(_x), y(_y), z(_z) {} 
+			
 			std::vector<rle::entity::Entity*> entities;
+			
 			unsigned int x;
 			unsigned int y;
 			unsigned int z; 
+			
 			rle::entity::Entity& operator[](unsigned int index){
 				return *(entities.at(index));  
 			}
@@ -59,10 +68,14 @@ namespace rle{
 		};
 		
 		class TileMap{
+			
 			std::string name;
+			
 			std::vector<Layer*> data_layers;
 			std::vector<Tile> tiles;
+			
 			unsigned int size;
+			
 			unsigned int max_x;
 			unsigned int max_y;
 			unsigned int max_z;
@@ -76,10 +89,21 @@ namespace rle{
 
 			template<typename T>
 			void NewLayer(std::string _name, T init_val);
+			
 			Layer& GetLayer(std::string _name);
 		        Layer& GetLayer(unsigned int index);				      
+			
 			void DelLayer(std::string _name);
-			void DelLayer(unsigned int index); 
+			void DelLayer(unsigned int index);
+			
+			std::tuple<unsigned int, unsigned int, unsigned int> getSizeTuple() { return {max_x, max_y, max_z}; }
+			
+			unsigned int getMax_x() { return max_x; }
+			unsigned int getMax_y() { return max_y; }
+			unsigned int getMax_z() { return max_z; }
+
+			unsigned int getSize() { return size; }
+
 		};	
 	}  
 }

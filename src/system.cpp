@@ -34,8 +34,36 @@ rle::system::LuaCall::LuaCall(lua_State* L_, std::string _system_name, std::stri
 }
 
 void rle::system::LuaCall::Exec(){
-	std::string lua_func_name = "systems." + system_name + "." + name; 
-	luaL_dostring(L, std::string(lua_func_name + "()").c_str());
+	if(enabled){	
+		std::string lua_func_name = "systems." + system_name + "." + name; 
+		luaL_dostring(L, std::string(lua_func_name + "()").c_str());
+		
+		/*
+		 * Let it be known that I had never wanted to do this. There is, surely, another solution you can think of that you think will work. 
+		 * 
+		 * You are wrong.
+		 *
+		 * For some reason, calling ExecFunc at any time during the initialization process returns very mysterious segfaults and bus faults.
+		 * Don't believe me? In lua_register.hpp, add ExecFunc("Init") and a for loop to call each system in lua_Entity's addComponent method.
+		 * It will fail.
+		 * 
+		 * You will wonder why.
+		 * You will check the debugger and find the control flow hopelessly broken.
+		 * Your heart will not last. You will fruitlessly find the reason. You will wonder, dwell, and ruminate until it destroys you. 
+		 *
+		 * So do yourself a favor. Ignore what I'm about to do. Allow me to relieve myself of this burden. It's heft has left me trembling.
+		 * There is no other way. This is a matter of survival. 
+		 *
+		 * The following code will enable one to call Init in the game loop each iteration, while not allowing Init to run after it has already.
+		 * While hacky, we can just... keep this going forever for whatever must run only once. 
+		 *
+		 * 	- The Sloth Sage
+		*/
+		
+		if(name == "Init") {
+			enabled = false;
+		}
+	}
 }
 
 rle::system::LuaSystem::LuaSystem(lua_State* L_, std::string _name) : L(L_), system::System(_name){

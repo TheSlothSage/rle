@@ -142,6 +142,9 @@ namespace rle{
 			void delTileMap(std::string name) {
 				obj.DelTileMap(name);
 			}
+			tile::TileMap& getTileMap(std::string name){
+				return obj.GetTileMap(name); 	
+			}
 			std::vector<tile::TileMap*>& getTilemapTable() {
 				return  obj.tile_map_table;
 			}
@@ -194,7 +197,7 @@ namespace rle{
 		class Specialized_Implementor<tile::TileMap> : public Default_Implementor<tile::TileMap> {
 		public:
 			Specialized_Implementor(tile::TileMap& _obj, Interface<tile::TileMap, Specialized_Implementor>& _iface) : Default_Implementor<tile::TileMap>(_obj, _iface) {}
-			
+		
 		};
 
 		// Specialization for tile::Layer

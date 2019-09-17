@@ -6,6 +6,8 @@
 #include "system.hpp"
 #include "tilemap.hpp"
 
+void recursive_ResolveDependencies(std::string component, lua_State* L, std::vector<rle::component::Component*>* vec);  
+
 namespace rle{	
 	namespace entity{		
 		class Entity{
@@ -30,8 +32,9 @@ namespace rle{
 			std::vector<component::Component*>& Components() { return component_table; }
 
 			component::Component& GetComponent(std::string name);
-			tile::TileMap& GetTileMap(std::string name);		       
-
+			void AddComponent(rle::component::Component* component) {                                 
+				Components().push_back(component);
+			}
 			unsigned int X() { return x; }
 			unsigned int Y() { return y; }
 			unsigned int Z() { return z; }
@@ -40,7 +43,19 @@ namespace rle{
 			void setY(int y_) { y = y_; }
 			void setZ(int z_) { z = z_; }
 			
-			tile::TileMap& TileMap() { return tilemap; } // interface level must deal with this because passing rle to everything is dumb and it's not how i set up all the code unfortunately 
+			// these two are the same, but since i don't have an editor with 
+			// fast reference replacement im just gonna leave this here. 
+			// both are inlined anyways so who cares.TileMap
+			
+			
+			tile::TileMap& getTileMap() { return tilemap; } 
+			void setTileMap(tile::TileMap& tilemap_) { tilemap = tilemap_; }
+			
+			// interface level must deal with this because passing
+			// rle to everything is dumb and it's not how i set up 
+			// all the code unfortunately 
+			// --- update ---- 
+			// strike that, interface doesn;t have to do shit
 			
 			void UpdateTilePtr();			
 		};

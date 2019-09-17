@@ -4,6 +4,8 @@ extern "C"{
 #include "math.h" 
 }
 
+#include <tuple>
+
 #include "component.hpp"
 #include "irle.hpp"
 
@@ -77,33 +79,81 @@ namespace rle{
 
 	}
 	
-	namespace entity {
-		struct lua_Entity : protected rle::lua_Reg<Entity> {
+	namespace entity { struct lua_Entity; } 
+
+	namespace tile{
+
+		struct lua_Tile : public lua_Reg<rle::tile::Tile>{
+			
+			lua_Tile(rle::interface::basic_irle* rle, rle::tile::Tile* tile) : lua_Reg(rle, tile) {} 
+			
+			rle::entity::lua_Entity getEntityByName(std::string name);
+			entity::lua_Entity getEntity(unsigned int index);  
+			
+			int entityCount() const { return container->entities.size(); }
+		};
+
+		struct lua_TileMap : public lua_Reg<rle::tile::TileMap>{
+			lua_TileMap(rle::interface::basic_irle* rle, rle::tile::TileMap* tilemap) : lua_Reg(rle, tilemap) {} 
+			~lua_TileMap() = default; 
+			
+			std::string Name() const { return container->Name(); }
+
+			lua_Number mapSize() const  { return container->getSize(); }
+
+			int mapX() const { return container->getMax_x(); }
+			int mapY() const { return container->getMax_y(); }		
+			int mapZ() const { return container->getMax_z(); }
+
+			lua_Tile tile(unsigned int x, unsigned int y) { return lua_Tile(rle, &((*container)[x,y])); }     
+		};
+	}
+		    
+        namespace entity {
+        	struct lua_Entity : protected rle::lua_Reg<rle::entity::Entity> {
+                	
 			lua_Entity(rle::interface::basic_irle* rle, Entity* entity) : lua_Reg(rle, entity) {}
-			~lua_Entity() = default;		
-
-			int getTile_X() const { return container->X(); }
-			int getTile_Y() const { return container->Y(); }
-			int getTile_Z() const { return container->Z(); }
-
+                	~lua_Entity() = default;        
+    
+      	        	int getTile_X() const { return container->X(); }
+		       	int getTile_Y() const { return container->Y(); }
+	 		int getTile_Z() const { return container->Z(); }
+    
 			void setTile_X(double x) { container->setX(::round(x)); }
 			void setTile_Y(double y) { container->setY(::round(y)); }
-			void setTile_Z(double z) { container->setZ(::round(z)); }
-
+	   		void setTile_Z(double z) { container->setZ(::round(z)); }
+		   
 			component::lua_Component get(std::string key) {
-				return component::lua_Component(rle, &rle->Instantiate<rle::entity::Entity>(*container).Do().Component(key));
+			       	return component::lua_Component(rle, &(container->GetComponent(key)));
 			}
 			std::string name() const {
-				return container->Name();
+			    	return container->Name();
 			}
 			lua_Entity& addComponent(std::string component) {
-				rle->Instantiate<rle::entity::Entity>(*container).Do().addComponent(component);
+				recursive_ResolveDependencies(component, rle->Do().LuaState(), &container->component_table);
+				// container->AddComponent(new component::Component(component, rle->Do().LuaState()));
 				return *this;
 			}
 			lua_Entity& delComponent(std::string component) {
 				rle->Instantiate<rle::entity::Entity>(*container).Do().delComponent(component);
 				return *this;
 			}
-		};
-	}
-}
+			// for tilemap property 
+			rle::tile::lua_TileMap getTileMap() const {
+			     	return rle::tile::lua_TileMap(rle, &(container->getTileMap()));
+			}
+			void setTileMap(std::string name){
+				container->setTileMap(rle->Do().getTileMap(name));
+		       	}
+		       	rle::tile::lua_Tile getTile() const {
+				return rle::tile::lua_Tile(rle, &(container->Tile()));     
+		       	}
+			void setTile(unsigned int x, unsigned int y, unsigned int z) const {
+				container->setX(x);
+				container->setY(y);
+				container->setZ(z);
+				container->UpdateTilePtr();
+			}
+	       	};
+       	}		
+}	

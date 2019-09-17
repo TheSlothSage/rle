@@ -1,6 +1,5 @@
 #include "component.hpp"
 #include <stdexcept>
-
 template<class T> 
 int rle::component::ComponentData<T>::type = -1; // error,  don't be this
 
@@ -19,7 +18,7 @@ template<> void rle::component::ComponentData<std::string>::setData(std::string 
 
 rle::component::Component::Component(std::string _name, lua_State* L) : name(_name) {
 	std::string fullname = std::string("components." + name);
-
+        
 	luabridge::LuaRef component_table = luabridge::LuaRef::getGlobal(L, "components");
 	luabridge::LuaRef component = component_table[name];
 	if (component.isNil()) {
@@ -30,9 +29,12 @@ rle::component::Component::Component(std::string _name, lua_State* L) : name(_na
 		throw std::runtime_error("rle::component::Component() : " + fullname + ".systems does not exist");
 	}
 
+        
 	std::string system_name;
 	systems.push();
 	lua_pushnil(L);
+	
+	
 	while (lua_next(L, -2)) {
 		if (lua_isstring(L, -1)) {
 			system_name = luabridge::LuaRef::fromStack(L, -1).cast<std::string>();
@@ -40,8 +42,8 @@ rle::component::Component::Component(std::string _name, lua_State* L) : name(_na
 		else {
 			throw std::runtime_error("rle::component::Component() : non string in system table");
 		}
-
-		system_table.push_back((system::System*)(new system::LuaSystem(L, system_name)));
+		auto sys = (system::System*)(new system::LuaSystem(L, system_name)); 
+		system_table.push_back(sys);
 		// pop value
 		lua_pop(L, 1);
 	}
@@ -60,7 +62,7 @@ rle::component::Component::Component(std::string _name, lua_State* L) : name(_na
 	std::string data_name;
 	datatable.push();
 	lua_pushnil(L);
-
+	
 	while (lua_next(L, -2)) {
 		data_name = luabridge::LuaRef::fromStack(L, -2).cast<std::string>();
 		comp_T v = std::monostate();
