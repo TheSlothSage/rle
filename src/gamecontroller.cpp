@@ -35,8 +35,8 @@ void rle::game::GameController::ExecCallAll(std::string call_name) {
 		auto ent = irle.Do().getEntityTable().at(i);
 		EntityContext::entity_context = ent->Name();
 		EntityContext::entity_ptr = ent;
-		for (component::Component*& comp : ent->component_table) {
-			for (system::System* sys : comp->system_table) {
+		for (std::vector<rle::component::Component*>::reverse_iterator comp = ent->component_table.rbegin(); comp != ent->component_table.rend(); ++comp ) {
+			for (system::System* sys : (*comp)->system_table) {
 				sys->ExecFunc(call_name);									
 			}			
 		}
@@ -68,6 +68,7 @@ void rle::game::GameController::Start() {
 	auto start = std::chrono::high_resolution_clock::now();
 
 	while (true) {
+	        RunAll();
 		ExecCallAll("Init");
 		ExecCallAll("Update");
 	}

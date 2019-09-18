@@ -97,6 +97,7 @@ void rle::game::widgets::CriticalWidget::Do() {
 					.addFunction("getComponent", &entity::lua_Entity::get)
 					.addFunction("addComponent", &entity::lua_Entity::addComponent)
 					.addFunction("delComponent", &entity::lua_Entity::delComponent)
+					.addFunction("checkComponent", &entity::lua_Entity::checkComponent)
 				.endClass()
 			
 				.beginClass<rle::tile::lua_Tile>("Tile")

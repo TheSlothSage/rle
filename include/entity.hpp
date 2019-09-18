@@ -39,9 +39,9 @@ namespace rle{
 			unsigned int Y() { return y; }
 			unsigned int Z() { return z; }
 
-			void setX(int x_) { x = x_; }
-			void setY(int y_) { y = y_; }
-			void setZ(int z_) { z = z_; }
+			void setX(int x_) { x = x_; UpdateTilePtr();}
+			void setY(int y_) { y = y_; UpdateTilePtr();}
+			void setZ(int z_) { z = z_; UpdateTilePtr();}
 			
 			// these two are the same, but since i don't have an editor with 
 			// fast reference replacement im just gonna leave this here. 
@@ -49,7 +49,17 @@ namespace rle{
 			
 			
 			tile::TileMap& getTileMap() { return tilemap; } 
-			void setTileMap(tile::TileMap& tilemap_) { tilemap = tilemap_; }
+			
+			void setTileMap(tile::TileMap& tilemap_) { 
+			        
+			        tilemap = tilemap_;
+			        
+			        x = 0;
+			        y = 0;
+			        z = 0;
+			        
+			        UpdateTilePtr(); 
+			}
 			
 			// interface level must deal with this because passing
 			// rle to everything is dumb and it's not how i set up 

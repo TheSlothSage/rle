@@ -3,44 +3,36 @@
 
 rle::game::widgets::SDLRender::SDLRender() : Controller_Widget(Widget_State<SDLRender>()) {}
 
-struct GlobalSDLRender {
-	static rle::render::SDLRender sdl;
-	static unsigned int x;
-	static unsigned int y;
-}; 
+static rle::render::SDLRender* sdl = nullptr;
 
-unsigned int GlobalSDLRender::x = 800;
-unsigned int GlobalSDLRender::y = 600; 
 
-rle::render::SDLRender GlobalSDLRender::sdl = rle::render::SDLRender(GlobalSDLRender::x, GlobalSDLRender::y); 
 
-void initSDL(unsigned int x, unsigned int y) {
-	GlobalSDLRender::sdl.setX(x);
-	GlobalSDLRender::sdl.setY(y);
+void initSDL(unsigned int x, unsigned int y, std::string path) {
+
+	sdl = new rle::render::SDLRender(x, y, path);
 	
-        GlobalSDLRender::sdl.destroy();
-	GlobalSDLRender::sdl.init(); 
 } 
 
 void pushTexture(unsigned int x, unsigned int y, std::string tex_path){
-        GlobalSDLRender::sdl.push(x, y, tex_path); 
+        sdl->push(x, y, tex_path); 
 }
 
-void draw(){
-    
-}
 
-void clear() { GlobalSDLRender::sdl.clear(); } 
+void clear() { sdl->clear(); } 
 
 void pushTextureToTable(std::string path){
-	GlobalSDLRender::sdl.pushTextureToTable(path); 
+	sdl->pushTextureToTable(path); 
 }
 
-unsigned int getMax_X() { return GlobalSDLRender::sdl.getTile_X(); }
-unsigned int getMax_Y() { return GlobalSDLRender::sdl.getTile_Y(); }
+unsigned int getMax_X() { return sdl->getTile_X(); }
+unsigned int getMax_Y() { return sdl->getTile_Y(); }
 
-void setMax_X(unsigned int x) { GlobalSDLRender::sdl.setTile_X(x); }
-void setMax_Y(unsigned int y) { GlobalSDLRender::sdl.setTile_Y(y); }
+void setMax_X(unsigned int x) { sdl->setTile_X(x); }
+void setMax_Y(unsigned int y) { sdl->setTile_Y(y); }
+
+void update() {
+        sdl->update(); 
+}
 
 void rle::game::widgets::SDLRender::Do() {
 	
@@ -48,8 +40,8 @@ void rle::game::widgets::SDLRender::Do() {
 		luabridge::getGlobalNamespace(rle::game::Irle::irle->Do().LuaState())
 			.beginNamespace("rle")
 				.addFunction("sdl_init", &initSDL)
-				.addFunction("sdl_draw", &draw)
 				.addFunction("sdl_clear", &clear)
+				.addFunction("sdl_update", &update)
 				.addFunction("sdl_pushTexture", &pushTexture)
 				.addFunction("sdl_pushTextureToTable", &pushTextureToTable)
 			        .addFunction("sdl_getMax_X", &getMax_X)
@@ -60,4 +52,5 @@ void rle::game::widgets::SDLRender::Do() {
 		
 		register_functions = false;
 	}
+        
 }

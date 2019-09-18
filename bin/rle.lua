@@ -1,3 +1,4 @@
+rle.sdl_init(800, 600, "assets/special/etc/nothingness.png")
 -- system space must exist!
 rle.newTilemap("system_space", 1, 1, 1)
 
@@ -18,5 +19,5 @@ rle.loadSystem("player")
 
 rle.loadComponent("the_master")
 rle.loadSystem("the_master") 
-rle.newEntity("player1", "the_nether", 0, 0, 0):addComponent("the_master")  
--- rle.sdlInit(800, 600) 
+
+rle.newEntity("player1", "the_nether", 3, 3, 0):addComponent("the_master")  

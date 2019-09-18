@@ -58,6 +58,7 @@ rle::entity::Entity::Entity(lua_State* L_, tile::TileMap& _tilemap, std::vector<
                                         
 					component_table.push_back(new component::Component(*iter, L));
 				}
+				UpdateTilePtr();
 }
 
 rle::entity::Entity::~Entity(){

@@ -8,13 +8,26 @@
 namespace rle{
 	namespace render{
 
+		/*
+		 * I seemed to have designed my way into a corner, so this will act as a single instance renderer. I have attempted to avoid 
+		 * things like this (in the hope that if one wanted to spawn multiple instances of rle in the same program it could be done),
+		 * yet alas I could not for this. However, this is only used in the sdl_renderer widget, so there is still hope. This mostly 
+		 * came out of a desperate need to get pixels on the screen, finally, and start developing other things. 
+		 *
+		 * This is nicely serving as the renderer state obj. Methods are exposed to lua for ease of use. Draw updates should be called
+		 * in the sdl_renderer Do() virtual function. 	
+		*/
 		class SDLRender : public rle::render::Element<SDLRender>{
 				
-			std::vector<std::vector<SDL_Texture*>*> texture_buf; 	
+			std::vector<std::string> texture_buf; 	
 			
 			// Serves as a lookup table for textures. Updated by 
-			// the texture component 
+			// the texture component in the form of independent calls. 
 			std::map<std::string, SDL_Texture*> texture_table;
+			
+			// pushTextureToTable is called before init is.
+			// this just queues up textures to be loaded
+			std::vector<std::string> path_queue; 
 			
 			unsigned int tile_x = 32; // x in pixels
                         unsigned int tile_y = 32; // y in pixels
@@ -29,19 +42,21 @@ namespace rle{
                         SDL_Surface* surface = nullptr;
                         SDL_Renderer* renderer = nullptr;
                         
+                        std::string default_texture_path;
                         
-                        std::vector<SDL_Texture*>* at(unsigned int x, unsigned int y){
-                                return texture_buf.at(x + x*y);
+                        std::string& at(unsigned int x_, unsigned int y_){
+                                return texture_buf[x_  + max_tile_x*y_];
                         } 
                         
                     public:    
                     
-                        SDLRender(unsigned int x_, unsigned int y_) 
+                        SDLRender(unsigned int x_, unsigned int y_, std::string path) 
                                 : max_tile_x(x_/tile_x), max_tile_y(y_/tile_y), rle::render::Element<SDLRender>(x_, y_)
-                                                { 
-                                                        texture_buf.reserve(max_tile_x * max_tile_y); 
-                                                        std::fill(texture_buf.begin(), texture_buf.end(), nullptr);
-                                                }
+                                        {
+                                                texture_buf.resize(max_tile_x * max_tile_y); 
+                                                std::fill(texture_buf.begin(), texture_buf.end(), "");
+                                                init(path);
+                                        }
                         
                         ~SDLRender();
                         
@@ -72,7 +87,7 @@ namespace rle{
                         unsigned int getTile_X() const { return max_tile_x; }
                         unsigned int getTile_Y() const { return max_tile_y; }
                         
-			void init();
+			void init(std::string path);
 			void update();	
 			void destroy(); 
 			void clear();

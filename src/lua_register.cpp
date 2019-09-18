@@ -38,3 +38,14 @@ rle::entity::lua_Entity rle::tile::lua_Tile::getEntity(unsigned int index) {
         throw std::runtime_error("lua_Tile::getEntity : index out of range");
     }
 }
+
+bool rle::entity::lua_Entity::checkComponent(std::string name){
+        for(rle::component::Component*& c : container->component_table){
+                if(c->Name() == name){
+                        return true;
+                }
+        }
+        return false;
+}
+
+

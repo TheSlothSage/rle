@@ -9,6 +9,20 @@ extern "C"{
 #include "component.hpp"
 #include "irle.hpp"
 
+
+/*
+ * All of the registration of classes is done here, so that they may be exposed to the lua API. This has the benefit of allowing each class to have
+ * access to the full RLE state. This means that each of these objects have a larger reach in terms of program state. They are highly extensible because of
+ * that. 
+ *
+ * It must be noted that this method is only as slow as it takes to construct these classes themselves. I should think that's acceptable for its ease of
+ * use. It also allows me to correct some defects in lower-layer code like Entity and Component with a higher level of readability. There will really
+ * be no need to revise the other objects with all of this created as it is.
+ *
+ * 	- The Sloth Sage
+*/
+
+
 namespace rle{
 
 	template<class container_T>
@@ -105,7 +119,8 @@ namespace rle{
 			int mapY() const { return container->getMax_y(); }		
 			int mapZ() const { return container->getMax_z(); }
 
-			lua_Tile tile(unsigned int x, unsigned int y) { return lua_Tile(rle, &((*container)[x,y])); }     
+			lua_Tile tile(unsigned int x, unsigned int y, unsigned int z) 
+			{ return lua_Tile(rle, &((*container)(x,y,z))); }  
 		};
 	}
 		    
@@ -130,8 +145,12 @@ namespace rle{
 			    	return container->Name();
 			}
 			lua_Entity& addComponent(std::string component) {
+				/*
+				 * oddly enoguh, recursive_ResolveDependencies only appends dependencies
+				 * I would have swore I didn't do that... anyways might as well just call AddComponent because idc
+				*/
 				recursive_ResolveDependencies(component, rle->Do().LuaState(), &container->component_table);
-				// container->AddComponent(new component::Component(component, rle->Do().LuaState()));
+				container->AddComponent(new component::Component(component, rle->Do().LuaState()));
 				return *this;
 			}
 			lua_Entity& delComponent(std::string component) {
@@ -154,6 +173,8 @@ namespace rle{
 				container->setZ(z);
 				container->UpdateTilePtr();
 			}
+			bool checkComponent(std::string name);
+
 	       	};
        	}		
 }	
