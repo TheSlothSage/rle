@@ -11,10 +11,13 @@ int main() {
 		auto sdl = rle::game::widgets::SDLRender(); 
 
 		auto g = rle::game::GameController();
+
 		g.LoadWidget(cw);
 		g.LoadWidget(dc);
 		g.LoadWidget(sdl); 
 		g.Start();
+	
+	        
 	} catch(std::exception& e){
 		std::cerr << e.what() << std::endl;	
 		return 0; // EXIT_FAIL

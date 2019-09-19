@@ -1,7 +1,9 @@
 #include "gamecontroller.hpp"
 #include "lua_register.hpp"
+#include "SDL.h"
 
 #include <chrono>
+
 
 std::string rle::game::EntityContext::entity_context = "undefined";
 rle::entity::Entity* rle::game::EntityContext::entity_ptr = nullptr;
@@ -30,12 +32,10 @@ void rle::game::GameController::Run(std::string name) {
 }	
 
 void rle::game::GameController::ExecCallAll(std::string call_name) {	
-	unsigned int ent_size = irle.Do().getEntityTable().size();
-	for (unsigned int i = 0; i < ent_size; ++i) {
-		auto ent = irle.Do().getEntityTable().at(i);
-		EntityContext::entity_context = ent->Name();
-		EntityContext::entity_ptr = ent;
-		for (std::vector<rle::component::Component*>::reverse_iterator comp = ent->component_table.rbegin(); comp != ent->component_table.rend(); ++comp ) {
+	for (std::map<std::string, rle::entity::Entity*>::iterator ent = irle.Do().getEntityTable().begin(); ent != irle.Do().getEntityTable().end(); ++ent) {
+		EntityContext::entity_context = ent->first;
+		EntityContext::entity_ptr = ent->second;
+		for (std::vector<rle::component::Component*>::reverse_iterator comp = ent->second->component_table.rbegin(); comp != ent->second->component_table.rend(); ++comp ) {
 			for (system::System* sys : (*comp)->system_table) {
 				sys->ExecFunc(call_name);									
 			}			
@@ -67,10 +67,16 @@ void rle::game::GameController::Start() {
 
 	auto start = std::chrono::high_resolution_clock::now();
 
+        SDL_Event e;
+
 	while (true) {
 	        RunAll();
 		ExecCallAll("Init");
 		ExecCallAll("Update");
+		
+		while(SDL_PollEvent(&e)) {
+		        std::cout << "there was an event" << std::endl;
+		}
 	}
 		/*  -- time stuff --
 		auto end = std::chrono::high_resolution_clock::now();
