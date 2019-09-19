@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <map>
 extern "C" {
 # include "lua.h"
 # include "lauxlib.h"
@@ -22,12 +23,14 @@ namespace rle{
 	}
 	struct RLE{	
 		lua_State* L;
-		// would have been more efficient to have a map but... whatever |_(0_0)_|
+		
 		std::vector<std::string> global_component_table; // keeps list of components loaded into main state
-		std::vector<system::System*> global_system_table; // stores pointers to all systems with their calls which have already been loaded into the lua state
-		std::vector<entity::Entity*> global_entity_table; // keeps a list of all entities
-		std::vector<tile::TileMap*> tile_map_table; // keeps a list of all tilemaps
+		std::map<std::string, system::System*> global_system_table; // stores pointers to all systems with their calls which have already been loaded into the lua state
+		std::map<std::string, entity::Entity*> global_entity_table; // keeps a list of all entities
+		std::map<std::string, tile::TileMap*> tile_map_table; // keeps a list of all tilemaps
+		
 		bool running = false;
+		
 		std::string current_entity_context = "undefined"; // keeps track of the current entity gamecontroller is using 
 
 		RLE();
@@ -42,11 +45,9 @@ namespace rle{
 		void DelEntity(std::string name);
 
 		void NewTileMap(tile::TileMap tilemap);
-		void DelTileMap(unsigned int index);
 		void DelTileMap(std::string name);
 
 		void AddSystem(system::System* system);  
-		void DelSystem(unsigned int index);
 		void DelSystem(std::string system);
 		
 		void AddComponent(std::string component);
@@ -61,8 +62,8 @@ namespace rle{
 		tile::TileMap& GetTileMap(std::string tilemap);
 
 		std::vector<std::string>& GetComponentTable() { return global_component_table; }
-		std::vector<system::System*>& GetSystemTable() { return global_system_table; }
-		std::vector<entity::Entity*>& GetEntityTable() { return global_entity_table; }
+		std::map<std::string, system::System* > & GetSystemTable() { return global_system_table; }
+		std::map<std::string, entity::Entity* > & GetEntityTable() { return global_entity_table; }
 
 		std::string GetContext() { return current_entity_context; }
 		void SetContext(std::string context) { current_entity_context = context; }
