@@ -133,7 +133,7 @@ namespace rle{
 			void delEntity(std::string name) const {
 				obj.DelEntity(name);
 			}
-			std::vector<entity::Entity*>& getEntityTable() {
+			std::map<std::string, entity::Entity*>& getEntityTable() {
 				return obj.global_entity_table;
 			}
 			void addTilemap(std::string name, unsigned int x, unsigned int y, unsigned int z) const {
@@ -145,7 +145,7 @@ namespace rle{
 			tile::TileMap& getTileMap(std::string name){
 				return obj.GetTileMap(name); 	
 			}
-			std::vector<tile::TileMap*>& getTilemapTable() {
+			std::map<std::string, tile::TileMap*>& getTilemapTable() {
 				return  obj.tile_map_table;
 			}
 			void loadScript(std::string path_name) const {
