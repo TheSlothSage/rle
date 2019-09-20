@@ -1,7 +1,10 @@
-~ BUILD INSTRUCTIONS
+~ BUILD INSTRUCTIONS ~
 
 If you dont have CMAKE installed, install that.
 Run the command: cmake . 
 Run the following command: make
 
 Current tests will spawn binaries with an rle_test* naming convention 
+
+Currently, build only works on linux (tested on latest verison of GCC/CMake). To make it work on windows, you'd have to manually link
+    librle withWindows SDL/lua5.3.
