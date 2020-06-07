@@ -37,13 +37,10 @@ void rle::game::GameController::ExecCallAll(std::string call_name) {
 		EntityContext::entity_ptr = ent->second;
 		for (std::vector<rle::component::Component*>::reverse_iterator comp = ent->second->component_table.rbegin(); comp != ent->second->component_table.rend(); ++comp ) {
 			for (system::System* sys : (*comp)->system_table) {
+				std::cout << call_name << std::endl;
 				sys->ExecFunc(call_name);									
 			}			
 		}
-		// account for the table growing or shrinking
-		unsigned int ent_size = irle.Do().getEntityTable().size();
-		// for some reason ent pointer dies a terrible death. i assume because the stack frame dies. who knows?
-
 	}
 }
 
@@ -63,20 +60,14 @@ void rle::game::GameController::Start() {
 	Irle::irle = &irle;
 		
 	Bootstrap();
+	
 	// Enter the startup state and start initializing things such as tilemaps and entities
-
 	auto start = std::chrono::high_resolution_clock::now();
-
-        SDL_Event e;
 
 	while (true) {
 	        RunAll();
 		ExecCallAll("Init");
 		ExecCallAll("Update");
-		
-		while(SDL_PollEvent(&e)) {
-		        std::cout << "there was an event" << std::endl;
-		}
 	}
 		/*  -- time stuff --
 		auto end = std::chrono::high_resolution_clock::now();

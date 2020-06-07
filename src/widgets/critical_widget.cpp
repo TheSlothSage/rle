@@ -42,7 +42,6 @@ void DelEntity(std::string name) {
 void lua_LoadComponent(std::string name) {
 	rle::interface::basic_irle& irle = *rle::game::Irle::irle;
 	irle.Do().loadScript(std::string("components/" + name + ".lua"));
-	
 }
 
 void lua_LoadSystem(std::string name) {

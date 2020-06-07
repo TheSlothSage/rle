@@ -9,12 +9,11 @@ static rle::render::SDLRender* sdl = nullptr;
 
 void initSDL(unsigned int x, unsigned int y, std::string path) {
 
-	sdl = new rle::render::SDLRender(x, y, path);
-	
+	sdl = new rle::render::SDLRender(x, y, path);	
 } 
 
 void pushTexture(unsigned int x, unsigned int y, std::string tex_path){
-        sdl->push(x, y, tex_path); 
+        sdl->push(x, y, tex_path);  
 }
 
 

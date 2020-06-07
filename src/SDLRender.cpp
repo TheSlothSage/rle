@@ -14,15 +14,16 @@ void rle::render::SDLRender::init(std::string default_texture_path_) {
 	        // init sdl        
 	        if(!window){
                         window = SDL_CreateWindow
-                                ("game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, getX(), getY(), SDL_WINDOW_SHOWN );
+                        ("game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, getX(), getY(), SDL_WINDOW_SHOWN );
                 }
+                
                 if(!window) { throw std::runtime_error("SDLRender::init : could not create window..."); }
                 
                 if(!surface)  { surface = SDL_GetWindowSurface(window); }
                 if (!surface) { throw std::runtime_error("SDLRender::init : could not get surface of window..."); }         
                 
                 if(!renderer){
-                        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);                 
+                        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
 
                 }
                 if (!renderer) { throw std::runtime_error("SDLRender::init : could not create a renderer..."); } 
@@ -39,7 +40,6 @@ void rle::render::SDLRender::init(std::string default_texture_path_) {
 void rle::render::SDLRender::update() {
 	
 	// will need this later
-	//SDL_Texture* image_sum = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tile_x, tile_y);
         
         SDL_Rect texture_rect;
         
@@ -53,25 +53,34 @@ void rle::render::SDLRender::update() {
 		texture_rect.x = tile_x * x_;
 		
 		for(unsigned y_ = 0; y_ < max_tile_y; ++y_){
-
+                        
                         texture_rect.y = tile_y * y_;
                         auto tex = at(x_, y_);
-                        if(tex == ""){
-                                SDL_RenderCopy(renderer, texture_table[default_texture_path], NULL, &texture_rect);  
+
+                        SDL_Texture* layered = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tile_x, tile_x);
+                        SDL_SetTextureBlendMode(layered, SDL_BLENDMODE_BLEND);
+                        
+                        SDL_SetRenderTarget(renderer, layered);
+                        
+                        for (auto it = tex.begin(); it != tex.end(); ++it) {
+                                 SDL_RenderCopy(renderer, texture_table[*it], NULL, NULL);
                         }
-                        else{
-                                SDL_RenderCopy(renderer, texture_table[tex], NULL, &texture_rect);
-                        }
+                        
+                        tex.clear();
+                        tex.shrink_to_fit();
+
+                        SDL_SetRenderTarget(renderer, NULL);
+
+                        SDL_RenderCopy(renderer, layered, NULL, &texture_rect);
+
 		} // y	
 	} // x
-	
-	SDL_RenderPresent(renderer); 
+        SDL_RenderPresent(renderer);
+        SDL_RenderClear(renderer);
 }
 
 void rle::render::SDLRender::push(unsigned int x_, unsigned int y_, std::string texture_path){
-
-        texture_buf[x_ + max_tile_x * y_] = texture_path; 
-        
+        texture_buf[x_ + max_tile_x * y_].push_back(texture_path); 
 }        
 
 void rle::render::SDLRender::destroy(){
@@ -90,6 +99,11 @@ void rle::render::SDLRender::destroy(){
 }
 
 void rle::render::SDLRender::clear(){
+    for (auto it = texture_buf.begin(); it != texture_buf.end(); ++it) {
+        auto textures = *it;
+        textures.clear();
+    }
+
 }
 
 rle::render::SDLRender::~SDLRender(){
@@ -99,6 +113,7 @@ rle::render::SDLRender::~SDLRender(){
 void rle::render::SDLRender::pushTextureToTable(std::string path){
         
         SDL_Texture* tex = IMG_LoadTexture(renderer, path.c_str());
+        SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
         
         if(!tex){
                 throw std::runtime_error("SDLRender::pushTextureToTable : no such image at location " + path);

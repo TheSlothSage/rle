@@ -19,17 +19,17 @@ namespace rle{
 		*/
 		class SDLRender : public rle::render::Element<SDLRender>{
 				
-			std::vector<std::string> texture_buf; 	
+                        std::vector<std::vector<std::string>> texture_buf; 	
 			
-			// Serves as a lookup table for textures. Updated by 
-			// the texture component in the form of independent calls. 
-			std::map<std::string, SDL_Texture*> texture_table;
+		        // Serves as a lookup table for textures. Updated by 
+		        // the texture component in the form of independent calls. 
+		        std::map<std::string, SDL_Texture*> texture_table;
+		
+		        // pushTextureToTable is called before init is.
+		        // this just queues up textures to be loaded
+                        std::vector<std::string> path_queue; 
 			
-			// pushTextureToTable is called before init is.
-			// this just queues up textures to be loaded
-			std::vector<std::string> path_queue; 
-			
-			unsigned int tile_x = 32; // x in pixels
+                        unsigned int tile_x = 32 ; // x in pixels
                         unsigned int tile_y = 32; // y in pixels
                         
                         unsigned int max_tile_x;
@@ -44,7 +44,7 @@ namespace rle{
                         
                         std::string default_texture_path;
                         
-                        std::string& at(unsigned int x_, unsigned int y_){
+                        std::vector<std::string>& at(unsigned int x_, unsigned int y_){
                                 return texture_buf[x_  + max_tile_x*y_];
                         } 
                         
@@ -54,7 +54,7 @@ namespace rle{
                                 : max_tile_x(x_/tile_x), max_tile_y(y_/tile_y), rle::render::Element<SDLRender>(x_, y_)
                                         {
                                                 texture_buf.resize(max_tile_x * max_tile_y); 
-                                                std::fill(texture_buf.begin(), texture_buf.end(), "");
+                                                std::fill(texture_buf.begin(), texture_buf.end(), std::vector<std::string>());
                                                 init(path);
                                         }
                         
@@ -64,7 +64,7 @@ namespace rle{
                                 tile_x = x;
                                 max_tile_x = x/tile_x; 
                                 texture_buf.resize(max_tile_x*max_tile_y);
-				clear(); 
+                                clear(); 
                         }
                         void setTile_Y(unsigned int y){
                                 tile_y = y;

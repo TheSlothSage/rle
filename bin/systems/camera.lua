@@ -9,6 +9,7 @@ function systems.camera.Init ()
 end
 
 function systems.camera.Update ()
+
         -- might as well update this
         rle.this():getComponent("camera"):setNum("max_x", rle.sdl_getMax_X())
         rle.this():getComponent("camera"):setNum("max_y", rle.sdl_getMax_Y())
@@ -19,29 +20,25 @@ function systems.camera.Update ()
         max_x = rle.this():getComponent("camera"):getNum("max_x")
         max_y = rle.this():getComponent("camera"):getNum("max_y")
 
+        tile_x = rle.this():getComponent("camera"):getNum("tile_x")
+        tile_y = rle.this():getComponent("camera"):getNum("tile_y")
+
         -- max tile must be an integer, so the limit uses the rounding formula
         -- (a - a%b)/b = round(a/b)
-        for i = rle.this().x - (max_x - max_x % 2)/2, rle.this().x + (max_x - max_x % 2)/2, 1  
-        do
-                for j = rle.this().y - (max_y - max_y % 2)/2, rle.this().y + (max_x - max_x % 2)/2, 1
-                do
-                        if i >= 0 and j >= 0 then
-                                
-                                tile = tilemap:getTile(i, j, rle.this().z)
-                                
-                                
-                                for index = 0, tile.entities - 1, 1
-                                do
-                                        entity = tile:getEntity(index) 
 
-                                        if entity:checkComponent("texture") then
-                                                rle.sdl_pushTexture(i, j, entity:getComponent("texture"):getStr("path"))
-                                        end
-                                        
-                                end
-                                
-                        end
-                end
+        -- Center of screen
+        offset_x = (max_x - max_x % 2)/2
+        offset_y = (max_y - max_y % 2)/2
+
+        --get farthest X from camera
+        tilemap_offset_x = offset_x
+
+        --check if this object has a texture 
+        if(rle.this():checkComponent("texture")) then
+                rle.sdl_pushTexture(offset_x, offset_y, rle.this():getComponent("texture"):getStr("path"))
         end
+
+        
+ 
         rle.sdl_update()
 end
